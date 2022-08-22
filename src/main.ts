@@ -24,7 +24,15 @@ function renderingSystem() {
 
 function movementSystem(deltaTime: number) {
   for (const c of components) {
-    c.movement?.move(deltaTime);
+    c.movement?.update?.(deltaTime);
+  }
+}
+
+// initialize all components
+for (const cs of Object.values(COMPONENTS)) {
+  for (const c of Object.values(cs)) {
+    // @ts-ignore
+    c?.start?.();
   }
 }
 

@@ -1,3 +1,3 @@
-export const ENTITIES = ["player"] as const;
+export const ENTITIES = ["player", "npc"] as const;
 
 export type Entity = typeof ENTITIES[number];

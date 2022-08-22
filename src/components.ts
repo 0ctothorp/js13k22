@@ -1,10 +1,14 @@
 import { Entity } from "./entities";
 import { INPUT } from "./input";
 
+interface Renderer {
+  render(ctx: CanvasRenderingContext2D): void;
+}
+
 export type Components = {
   transform: TransformComponent;
-  renderer: RenderComponent;
-  movement: Movement;
+  renderer: Renderer;
+  movement: Component;
 };
 
 class Component {
@@ -12,6 +16,37 @@ class Component {
 
   constructor(entity: Entity) {
     this.entity = entity;
+  }
+
+  update?(deltaTime: number): void;
+  start?(): void;
+}
+
+class DeathRenderComponent extends Component implements Renderer {
+  render(ctx: CanvasRenderingContext2D) {
+    const transformComponent = COMPONENTS[this.entity]["transform"];
+    if (!transformComponent) {
+      console.error(`no transform component on ${this.entity}`);
+      return;
+    }
+
+    const { x, y } = transformComponent;
+    ctx.font = "40px sans-serif";
+    ctx.fillText("💀", x, y);
+  }
+}
+
+class NPCRenderComponent extends Component implements Renderer {
+  render(ctx: CanvasRenderingContext2D) {
+    const transformComponent = COMPONENTS[this.entity]["transform"];
+    if (!transformComponent) {
+      console.error(`no transform component on ${this.entity}`);
+      return;
+    }
+
+    const { x, y } = transformComponent;
+    ctx.font = "40px sans-serif";
+    ctx.fillText("😐", x, y);
   }
 }
 
@@ -39,14 +74,10 @@ export class TransformComponent extends Component {
   }
 }
 
-interface Movement {
-  move(deltaTime: number): void;
-}
-
-class PlayerMovement extends Component implements Movement {
+class PlayerMovement extends Component {
   speed: number = 0.5;
 
-  move(deltaTime: number) {
+  update(deltaTime: number) {
     const transform = COMPONENTS[this.entity].transform;
     if (!transform) {
       console.error("no transform component on player");
@@ -84,10 +115,94 @@ class PlayerMovement extends Component implements Movement {
   }
 }
 
+class NPCMovement extends Component {
+  speed: number = 0.2;
+  direction = [0, 0];
+  accumulatedTime: number = 0;
+  // @ts-ignore
+  transform: TransformComponent;
+
+  start() {
+    this.transform = COMPONENTS[this.entity].transform!;
+    if (!this.transform) {
+      throw `no transform component on ${this.entity}`;
+    }
+  }
+
+  private recomputeDirection() {
+    const axis = Math.floor(Math.random() * 2);
+    this.direction[axis] = Math.random() > 0.5 ? -1 : 1;
+    this.direction[Math.abs(axis - 1)] = 0;
+  }
+
+  private isOutOfBoundsBy(distance: number) {
+    return (
+      this.transform.x > window.innerWidth + distance ||
+      this.transform.x < -distance ||
+      this.transform.y < -distance ||
+      this.transform.y > window.innerHeight + distance
+    );
+  }
+
+  update(deltaTime: number) {
+    if (this.isOutOfBoundsBy(20) && this.accumulatedTime > 0) {
+      this.direction[0] = -this.direction[0];
+      this.direction[1] = -this.direction[1];
+      this.accumulatedTime = 0;
+      return;
+    }
+
+    if (this.accumulatedTime >= 2000) {
+      this.recomputeDirection();
+      this.accumulatedTime = 0;
+      return;
+    }
+
+    this.accumulatedTime += deltaTime;
+
+    const moveBy = this.speed * deltaTime;
+    if (this.direction[1] === 1) {
+      this.transform.y -= moveBy;
+      return;
+    }
+    if (this.direction[1] === -1) {
+      this.transform.y += moveBy;
+      return;
+    }
+    if (this.direction[0] === -1) {
+      this.transform.x -= moveBy;
+      return;
+    }
+    if (this.direction[0] === 1) {
+      this.transform.x += moveBy;
+      return;
+    }
+  }
+}
+
 export const COMPONENTS: Record<Entity, Partial<Components>> = {
   player: {
     transform: new TransformComponent("player", 100, 100),
-    renderer: new RenderComponent("player"),
+    renderer: new DeathRenderComponent("player"),
     movement: new PlayerMovement("player"),
   },
+  npc: {
+    transform: new TransformComponent("npc", 200, 200),
+    renderer: new NPCRenderComponent("npc"),
+    movement: new NPCMovement("npc"),
+  },
 };
+
+// const ENTITIES = {
+//   player: 0,
+//   npc1: 1,
+//   npc2: 2,
+//   npc3: 3,
+// };
+// const COMPONENTS_MATRIX = [
+//   [
+//     new TransformComponent(ENTITIES.player, 100, 100),
+//     new DeathRenderComponent(ENTITIES.player),
+//     new PlayerMovement(ENTITIES.player),
+//   ],
+// ];
