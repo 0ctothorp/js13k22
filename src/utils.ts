@@ -26,3 +26,10 @@ export function getDebugDrawFPS(ctx: CanvasRenderingContext2D) {
     ctx.fillText(lastFrames.toFixed(2), 20, 40);
   };
 }
+
+const REFERENCE_SCREEN_WIDTH = 1280;
+
+export function worldSize(size: number) {
+  const multiplier = window.innerWidth / REFERENCE_SCREEN_WIDTH;
+  return size * multiplier;
+}

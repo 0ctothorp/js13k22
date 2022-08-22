@@ -1,4 +1,4 @@
-import { COMPONENTS } from "./components";
+import { COMPONENTS } from "./components/componentsMap";
 import { debounce, getDebugDrawFPS } from "./utils";
 
 function resizeCanvas() {
