@@ -28,6 +28,12 @@ function movementSystem(deltaTime: number) {
   }
 }
 
+function npcLifeSystem(deltaTime: number) {
+  for (const c of components) {
+    c.npcLife?.update?.(deltaTime);
+  }
+}
+
 // initialize all components
 for (const cs of Object.values(COMPONENTS)) {
   for (const c of Object.values(cs)) {
@@ -42,6 +48,7 @@ function loop(time: number) {
   prevTime = time;
 
   movementSystem(deltaTime);
+  npcLifeSystem(deltaTime);
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   renderingSystem();

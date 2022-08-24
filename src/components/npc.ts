@@ -14,6 +14,8 @@ export class NPCMovement extends Component {
     if (!this.transform) {
       throw `no transform component on ${this.entity}`;
     }
+
+    this.recomputeDirection();
   }
 
   private recomputeDirection() {
@@ -104,6 +106,14 @@ export class NPCRenderComponent extends Component implements Renderer {
     ctx.lineTo(lsx + worldSize(10), sy);
     ctx.closePath();
     ctx.stroke();
+
+    ctx.strokeStyle = "yellow";
+    ctx.beginPath();
+    const cursorx = sx + healthBarWidth * life.lifeProgress;
+    ctx.moveTo(cursorx, sy);
+    ctx.lineTo(cursorx + 1, sy);
+    ctx.closePath();
+    ctx.stroke();
   }
 }
 
@@ -113,11 +123,9 @@ export class NPCLifeComponent extends Component {
 
   start() {
     this.diesAtPercent = Math.min(Math.random() + 0.15, 1);
-    setTimeout(() => {
-      this.lifeProgress += 0.01;
-      if (this.lifeProgress >= 1) {
-        // die
-      }
-    }, 16);
+  }
+
+  update(deltaTime: number) {
+    this.lifeProgress += 0.00004 * deltaTime;
   }
 }
