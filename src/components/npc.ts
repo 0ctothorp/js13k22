@@ -120,12 +120,21 @@ export class NPCRenderComponent extends Component implements Renderer {
 export class NPCLifeComponent extends Component {
   diesAtPercent = -1;
   lifeProgress = 0;
+  living = true;
+
+  static LIFE_PROGRESS_RATE = 0.00005;
 
   start() {
     this.diesAtPercent = Math.min(Math.random() + 0.15, 1);
   }
 
   update(deltaTime: number) {
-    this.lifeProgress += 0.00004 * deltaTime;
+    if (!this.living) return;
+    console.log(NPCLifeComponent.LIFE_PROGRESS_RATE);
+    this.lifeProgress += NPCLifeComponent.LIFE_PROGRESS_RATE * deltaTime;
+    if (this.lifeProgress > 1) {
+      this.lifeProgress = 1;
+      this.living = false;
+    }
   }
 }
