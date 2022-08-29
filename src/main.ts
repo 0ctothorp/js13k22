@@ -34,6 +34,22 @@ function npcLifeSystem(deltaTime: number) {
   }
 }
 
+function uiSystem() {
+  for (const c of components) {
+    c.ui?.render?.(ctx);
+  }
+}
+
+function collisionSystem() {
+  for (const c of components) {
+    if (import.meta.env.DEV) {
+      c.collider?.DEBUG_render(ctx);
+    }
+    // check for collisions between colliders
+    // maybe do it in a fixed time step?
+  }
+}
+
 // initialize all components
 for (const cs of Object.values(COMPONENTS)) {
   for (const c of Object.values(cs)) {
@@ -51,7 +67,11 @@ function loop(time: number) {
   npcLifeSystem(deltaTime);
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  collisionSystem();
+
   renderingSystem();
+  uiSystem();
 
   if (import.meta.env.DEV) {
     debugDrawFPS(time);

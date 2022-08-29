@@ -21,9 +21,13 @@ export function getDebugDrawFPS(ctx: CanvasRenderingContext2D) {
       frames += 1;
     }
 
-    ctx.font = "30px sans-serif";
+    ctx.font = "20px sans-serif";
     ctx.fillStyle = "green";
-    ctx.fillText(lastFrames.toFixed(2), 20, 40);
+    ctx.fillText(
+      lastFrames.toFixed(2),
+      window.innerWidth - 70,
+      window.innerHeight - 15
+    );
   };
 }
 
@@ -32,4 +36,10 @@ const REFERENCE_SCREEN_WIDTH = 1280;
 export function worldSize(size: number) {
   const multiplier = window.innerWidth / REFERENCE_SCREEN_WIDTH;
   return size * multiplier;
+}
+
+export function range(count: number) {
+  return Array(count)
+    .fill(null)
+    .map((_, i) => i + 1);
 }

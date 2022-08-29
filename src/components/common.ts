@@ -5,18 +5,22 @@ export interface Renderer {
   render(ctx: CanvasRenderingContext2D): void;
 }
 
-export class Component {
+export interface IComponent {
+  start?(): void;
+  update?(deltaTime: number): void;
+  render?(ctx: CanvasRenderingContext2D): void;
+  DEBUG_render?(ctx: CanvasRenderingContext2D): void;
+}
+
+export class BaseComponent {
   protected entity: Entity;
 
   constructor(entity: Entity) {
     this.entity = entity;
   }
-
-  update?(deltaTime: number): void;
-  start?(): void;
 }
 
-export class RenderComponent extends Component {
+export class RenderComponent extends BaseComponent implements IComponent {
   render(ctx: CanvasRenderingContext2D) {
     const transformComponent = COMPONENTS[this.entity]["transform"];
     if (!transformComponent) {
@@ -29,7 +33,7 @@ export class RenderComponent extends Component {
   }
 }
 
-export class TransformComponent extends Component {
+export class TransformComponent extends BaseComponent {
   x: number;
   y: number;
 

@@ -1,13 +1,23 @@
 import { Entity } from "../entities";
-import { Component, Renderer, TransformComponent } from "./common";
+import { worldSize } from "../utils";
+import {
+  BaseComponent,
+  IComponent,
+  Renderer,
+  TransformComponent,
+} from "./common";
 import { DeathRenderComponent, PlayerMovement } from "./death";
 import { NPCLifeComponent, NPCMovement, NPCRenderComponent } from "./npc";
+import { Collider } from "./physics";
+import { PlayerHealth } from "./uiComponents";
 
 export type Components = {
   transform: TransformComponent;
   renderer: Renderer;
-  movement: Component;
+  movement: BaseComponent;
   npcLife: NPCLifeComponent;
+  ui: IComponent;
+  collider: Collider;
 };
 
 export const COMPONENTS: Record<Entity, Partial<Components>> = {
@@ -15,6 +25,8 @@ export const COMPONENTS: Record<Entity, Partial<Components>> = {
     transform: new TransformComponent("player", 100, 100),
     renderer: new DeathRenderComponent("player"),
     movement: new PlayerMovement("player"),
+    ui: new PlayerHealth("player"),
+    collider: new Collider("player", [worldSize(40), worldSize(40)]),
   },
   npc0: {
     transform: new TransformComponent("npc0", 200, 200),

@@ -1,9 +1,9 @@
 import { INPUT } from "../input";
 import { worldSize } from "../utils";
-import { Component, Renderer } from "./common";
+import { BaseComponent, Renderer } from "./common";
 import { COMPONENTS } from "./componentsMap";
 
-export class DeathRenderComponent extends Component implements Renderer {
+export class DeathRenderComponent extends BaseComponent implements Renderer {
   render(ctx: CanvasRenderingContext2D) {
     const transformComponent = COMPONENTS[this.entity]["transform"];
     if (!transformComponent) {
@@ -17,7 +17,7 @@ export class DeathRenderComponent extends Component implements Renderer {
   }
 }
 
-export class PlayerMovement extends Component {
+export class PlayerMovement extends BaseComponent {
   speed: number = 0.5;
 
   update(deltaTime: number) {
