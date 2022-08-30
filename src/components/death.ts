@@ -4,6 +4,8 @@ import { BaseComponent, Renderer } from "./common";
 import { COMPONENTS } from "./componentsMap";
 
 export class DeathRenderComponent extends BaseComponent implements Renderer {
+  spriteUrl = "public/skull.webp";
+
   render(ctx: CanvasRenderingContext2D) {
     const transformComponent = COMPONENTS[this.entity]["transform"];
     if (!transformComponent) {
@@ -12,8 +14,12 @@ export class DeathRenderComponent extends BaseComponent implements Renderer {
     }
 
     const { x, y } = transformComponent;
-    ctx.font = `${worldSize(40)}px sans-serif`;
-    ctx.fillText("💀", x, y);
+
+    const img = new Image();
+    img.src = this.spriteUrl;
+    const size = worldSize(32);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(img, x, y, size, size);
   }
 }
 

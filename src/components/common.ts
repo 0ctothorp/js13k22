@@ -13,7 +13,7 @@ export interface IComponent {
 }
 
 export class BaseComponent {
-  protected entity: Entity;
+  entity: Entity;
 
   constructor(entity: Entity) {
     this.entity = entity;

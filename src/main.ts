@@ -1,5 +1,10 @@
 import { COMPONENTS } from "./components/componentsMap";
-import { debounce, getDebugDrawFPS } from "./utils";
+import {
+  areSquaresColliding,
+  debounce,
+  getDebugDrawFPS,
+  worldSize,
+} from "./utils";
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -47,6 +52,28 @@ function collisionSystem() {
     }
     // check for collisions between colliders
     // maybe do it in a fixed time step?
+    for (const other of components) {
+      if (
+        areSquaresColliding(
+          {
+            x: c.transform?.x!,
+            y: c.transform?.y!,
+            size: worldSize(32),
+          },
+          {
+            x: other.transform?.x!,
+            y: other.transform?.y!,
+            size: worldSize(32),
+          }
+        )
+      ) {
+        c.collider!.collidingWith = other.collider!.entity;
+        other.collider!.collidingWith = c.collider!.entity;
+      } else {
+        c.collider!.collidingWith = null;
+        other.collider!.collidingWith = null;
+      }
+    }
   }
 }
 

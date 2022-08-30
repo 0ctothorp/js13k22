@@ -23,8 +23,12 @@ export class Collider extends BaseComponent implements IComponent {
   update() {}
 
   DEBUG_render(ctx: CanvasRenderingContext2D) {
-    ctx.strokeStyle = "green";
-    ctx.lineWidth = "1";
+    if (this.collidingWith) {
+      ctx.strokeStyle = "rgb(255,0,0)";
+    } else {
+      ctx.strokeStyle = "rgb(0,255,0)";
+    }
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.rect(
       this.transform?.x!,

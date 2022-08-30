@@ -43,3 +43,17 @@ export function range(count: number) {
     .fill(null)
     .map((_, i) => i + 1);
 }
+
+export type Square = {
+  x: number;
+  y: number;
+  size: number;
+};
+export function areSquaresColliding(s1: Square, s2: Square) {
+  return !(
+    s1.x > s2.x + s2.size ||
+    s2.x > s1.x + s1.size ||
+    s1.y > s2.y + s2.size ||
+    s2.y > s1.y + s1.size
+  );
+}
