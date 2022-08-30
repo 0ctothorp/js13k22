@@ -4,7 +4,7 @@ import { BaseComponent, Renderer } from "./common";
 import { COMPONENTS } from "./componentsMap";
 
 export class DeathRenderComponent extends BaseComponent implements Renderer {
-  spriteUrl = "public/skull.webp";
+  spriteUrl = "skull.webp";
 
   render(ctx: CanvasRenderingContext2D) {
     const transformComponent = COMPONENTS[this.entity]["transform"];
