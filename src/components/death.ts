@@ -1,11 +1,10 @@
 import { INPUT } from "../input";
+import { SPRITES, SPRITESHEET } from "../sprites";
 import { worldSize } from "../utils";
 import { BaseComponent, Renderer } from "./common";
 import { COMPONENTS } from "./componentsMap";
 
 export class DeathRenderComponent extends BaseComponent implements Renderer {
-  spriteUrl = "skull.webp";
-
   render(ctx: CanvasRenderingContext2D) {
     const transformComponent = COMPONENTS[this.entity]["transform"];
     if (!transformComponent) {
@@ -15,11 +14,20 @@ export class DeathRenderComponent extends BaseComponent implements Renderer {
 
     const { x, y } = transformComponent;
 
-    const img = new Image();
-    img.src = this.spriteUrl;
     const size = worldSize(32);
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(img, x, y, size, size);
+    const cfg = SPRITES.skull;
+    ctx.drawImage(
+      SPRITESHEET,
+      cfg.x,
+      cfg.y,
+      cfg.size,
+      cfg.size,
+      x,
+      y,
+      size,
+      size
+    );
   }
 }
 

@@ -1,3 +1,4 @@
+import { SPRITES, SPRITESHEET } from "../sprites";
 import { worldSize } from "../utils";
 import { BaseComponent, Renderer, TransformComponent } from "./common";
 import { COMPONENTS } from "./componentsMap";
@@ -109,22 +110,45 @@ export class NPCRenderComponent extends BaseComponent implements Renderer {
     }
 
     const { x, y } = transformComponent;
-    const npcSize = worldSize(40);
-    ctx.font = `${npcSize}px sans-serif`;
+    const npcSize = worldSize(32);
+    ctx.imageSmoothingEnabled = false;
+
     if (life.living) {
-      ctx.fillText("😐", x, y);
+      const spritecfg = SPRITES.npcNormal;
+      ctx.drawImage(
+        SPRITESHEET,
+        spritecfg.x,
+        spritecfg.y,
+        spritecfg.size,
+        spritecfg.size,
+        x,
+        y,
+        npcSize,
+        npcSize
+      );
     } else {
-      ctx.fillText("😈", x, y);
+      const spritecfg = SPRITES.npcEvil;
+      ctx.drawImage(
+        SPRITESHEET,
+        spritecfg.x,
+        spritecfg.y,
+        spritecfg.size,
+        spritecfg.size,
+        x,
+        y,
+        npcSize,
+        npcSize
+      );
     }
 
     if (life.living) {
       // health bar
-      const healthBarWidth = worldSize(60);
+      const healthBarWidth = worldSize(75);
       ctx.strokeStyle = "green";
-      ctx.lineWidth = worldSize(10);
+      ctx.lineWidth = worldSize(11);
       ctx.beginPath();
-      const sx = x - healthBarWidth / 2 + npcSize / 2;
-      const sy = y - npcSize - worldSize(10);
+      const sx = x + npcSize / 2 - healthBarWidth / 2;
+      const sy = y - worldSize(10);
       ctx.moveTo(sx, sy);
       ctx.lineTo(sx + healthBarWidth, sy);
       ctx.closePath();
@@ -133,9 +157,10 @@ export class NPCRenderComponent extends BaseComponent implements Renderer {
       // health bar kill area
       ctx.strokeStyle = "red";
       ctx.beginPath();
-      const lsx = sx + life.diesAtPercent * healthBarWidth - worldSize(5);
+      // TODO: zrandomizować trochę szerokość tej strefy śmierci
+      const lsx = sx + life.diesAtPercent * healthBarWidth - worldSize(10);
       ctx.moveTo(lsx, sy);
-      ctx.lineTo(lsx + worldSize(10), sy);
+      ctx.lineTo(lsx + worldSize(20), sy);
       ctx.closePath();
       ctx.stroke();
 
@@ -148,6 +173,12 @@ export class NPCRenderComponent extends BaseComponent implements Renderer {
       ctx.closePath();
       ctx.stroke();
     }
+
+    if (import.meta.env.DEV && window.DEBUG) {
+      ctx.font = "16px sans-serif";
+      ctx.fillStyle = "rgb(0, 255, 0)";
+      ctx.fillText(this.entity, x, y - worldSize(20));
+    }
   }
 }
 
@@ -159,7 +190,7 @@ export class NPCLifeComponent extends BaseComponent {
   static LIFE_PROGRESS_RATE = 0.00005;
 
   start() {
-    this.diesAtPercent = Math.min(Math.random() + 0.15, 1);
+    this.diesAtPercent = Math.min(Math.random() + 0.25, 0.75);
   }
 
   update(deltaTime: number) {

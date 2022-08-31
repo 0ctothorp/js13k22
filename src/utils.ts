@@ -57,3 +57,9 @@ export function areSquaresColliding(s1: Square, s2: Square) {
     s2.y > s1.y + s1.size
   );
 }
+
+export function loadImage(src: string) {
+  const img = new Image();
+  img.src = src;
+  return img;
+}

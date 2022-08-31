@@ -6,6 +6,8 @@ import {
   worldSize,
 } from "./utils";
 
+window.DEBUG = true;
+
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -29,6 +31,7 @@ function renderingSystem() {
 
 function movementSystem(deltaTime: number) {
   for (const c of components) {
+    // @ts-ignore
     c.movement?.update?.(deltaTime);
   }
 }
@@ -47,13 +50,13 @@ function uiSystem() {
 
 function collisionSystem() {
   for (const c of components) {
-    if (import.meta.env.DEV) {
-      c.collider?.DEBUG_render(ctx);
-    }
     // check for collisions between colliders
     // maybe do it in a fixed time step?
     for (const other of components) {
       if (
+        c.collider &&
+        other.collider &&
+        c.collider.entity !== other.collider.entity &&
         areSquaresColliding(
           {
             x: c.transform?.x!,
@@ -67,12 +70,16 @@ function collisionSystem() {
           }
         )
       ) {
-        c.collider!.collidingWith = other.collider!.entity;
-        other.collider!.collidingWith = c.collider!.entity;
+        c.collider!.collidingWith.add(other.collider!.entity);
+        other.collider!.collidingWith.add(c.collider!.entity);
       } else {
-        c.collider!.collidingWith = null;
-        other.collider!.collidingWith = null;
+        c.collider!.collidingWith.delete(other.collider!.entity);
+        other.collider!.collidingWith.delete(c.collider!.entity);
       }
+    }
+
+    if (import.meta.env.DEV) {
+      c.collider?.DEBUG_render(ctx);
     }
   }
 }

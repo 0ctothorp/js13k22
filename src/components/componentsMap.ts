@@ -42,4 +42,11 @@ export const COMPONENTS: Record<Entity, Partial<Components>> = {
     npcLife: new NPCLifeComponent("npc1"),
     collider: new Collider("npc1", [worldSize(32), worldSize(32)]),
   },
+  npc2: {
+    transform: new TransformComponent("npc2", 300, 300),
+    renderer: new NPCRenderComponent("npc2"),
+    movement: new NPCMovement("npc2"),
+    npcLife: new NPCLifeComponent("npc2"),
+    collider: new Collider("npc2", [worldSize(32), worldSize(32)]),
+  },
 };

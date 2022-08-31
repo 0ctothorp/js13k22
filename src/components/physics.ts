@@ -4,7 +4,7 @@ import { COMPONENTS } from "./componentsMap";
 
 export class Collider extends BaseComponent implements IComponent {
   size: [number, number];
-  collidingWith: Entity | null = null;
+  collidingWith: Set<Entity> = new Set();
 
   transform: TransformComponent | undefined;
 
@@ -20,10 +20,8 @@ export class Collider extends BaseComponent implements IComponent {
     }
   }
 
-  update() {}
-
   DEBUG_render(ctx: CanvasRenderingContext2D) {
-    if (this.collidingWith) {
+    if (this.collidingWith.size > 0) {
       ctx.strokeStyle = "rgb(255,0,0)";
     } else {
       ctx.strokeStyle = "rgb(0,255,0)";
