@@ -63,3 +63,5 @@ export function loadImage(src: string) {
   img.src = src;
   return img;
 }
+
+export function noop() {}

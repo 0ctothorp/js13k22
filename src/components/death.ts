@@ -1,7 +1,7 @@
 import { INPUT } from "../input";
 import { SPRITES, SPRITESHEET } from "../sprites";
 import { worldSize } from "../utils";
-import { BaseComponent, Renderer } from "./common";
+import { BaseComponent, IComponent, Renderer } from "./common";
 import { COMPONENTS } from "./componentsMap";
 
 export class DeathRenderComponent extends BaseComponent implements Renderer {
@@ -31,7 +31,7 @@ export class DeathRenderComponent extends BaseComponent implements Renderer {
   }
 }
 
-export class PlayerMovement extends BaseComponent {
+export class PlayerMovement extends BaseComponent implements IComponent {
   speed: number = 0.5;
 
   update(deltaTime: number) {

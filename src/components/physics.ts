@@ -5,12 +5,18 @@ import { COMPONENTS } from "./componentsMap";
 export class Collider extends BaseComponent implements IComponent {
   size: [number, number];
   collidingWith: Set<Entity> = new Set();
+  onCollide: (entities: Entity[]) => void;
 
   transform: TransformComponent | undefined;
 
-  constructor(entity: Entity, size: [number, number]) {
+  constructor(
+    entity: Entity,
+    size: [number, number],
+    onCollide: (entities: Entity[]) => void
+  ) {
     super(entity);
     this.size = size;
+    this.onCollide = onCollide;
   }
 
   start() {

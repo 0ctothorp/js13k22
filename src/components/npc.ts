@@ -1,9 +1,14 @@
 import { SPRITES, SPRITESHEET } from "../sprites";
 import { worldSize } from "../utils";
-import { BaseComponent, Renderer, TransformComponent } from "./common";
+import {
+  BaseComponent,
+  IComponent,
+  Renderer,
+  TransformComponent,
+} from "./common";
 import { COMPONENTS } from "./componentsMap";
 
-export class NPCMovement extends BaseComponent {
+export class NPCMovement extends BaseComponent implements IComponent {
   speed: number = 0.2;
   direction = [0, 0];
   accumulatedTime: number = 0;
