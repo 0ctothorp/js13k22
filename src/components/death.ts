@@ -1,4 +1,4 @@
-import { INPUT } from "../input";
+import { INPUT, LAST_MOVEMENT_KEY, MOVEMENT } from "../input";
 import { SPRITES, SPRITESHEET } from "../sprites";
 import { worldSize } from "../utils";
 import { BaseComponent, IComponent, Renderer } from "./common";
@@ -41,19 +41,13 @@ export class PlayerMovement extends BaseComponent implements IComponent {
       return;
     }
 
-    const pressedKeys = Object.entries(INPUT)
-      .filter(([_, v]) => v)
-      .map(([k]) => k)
-      .filter((k) => ["KeyW", "KeyA", "KeyD", "KeyS"].includes(k));
+    // const pressedKeys = Object.entries(INPUT)
+    //   .filter(([_, v]) => v)
+    //   .map(([k]) => k)
+    //   .filter((k) => ["KeyW", "KeyA", "KeyD", "KeyS"].includes(k));
 
-    // poprawić to, żeby dało się chodzić po skosie?
-    // denerwujące jest to, że w niektórych przypadkach. gdy już naciskam
-    // jakiś klawisz i dokładam kolejny, żeby zmienić kierunek ruchu, to
-    // dopóki nie puszczę poprzedniego, to idę cały czas w tę samą stronę.
-    // Jeśli dodam poruszanie się po skosie, to problem rozwiązany, jeśli nie
-    // to musiałbym znać czas naciśnięcia klawisza, żeby ten ostatnio wciśnięty
-    // miał większy priorytet.
-    switch (pressedKeys[0]) {
+    if (!INPUT[MOVEMENT[0]]) return;
+    switch (MOVEMENT[0]) {
       case "KeyW":
         transform.y -= this.speed * deltaTime;
         break;

@@ -1,3 +1,3 @@
-export const ENTITIES = ["player", "npc0", "npc1", "npc2"] as const;
+import { COMPONENTS } from "./components/componentsMap";
 
-export type Entity = typeof ENTITIES[number];
+export type Entity = keyof typeof COMPONENTS;

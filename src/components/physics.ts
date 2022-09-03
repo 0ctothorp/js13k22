@@ -1,26 +1,32 @@
 import { Entity } from "../entities";
+import { range, worldSize } from "../utils";
 import { BaseComponent, IComponent, TransformComponent } from "./common";
 import { COMPONENTS } from "./componentsMap";
+
+export interface ICollider extends IComponent {
+  size: [number, number];
+  collidingWith: Set<Entity>;
+  transform: TransformComponent;
+
+  DEBUG_render(ctx: CanvasRenderingContext2D): void;
+  onCollide(entities: Set<Entity>): void;
+}
 
 export class Collider extends BaseComponent implements IComponent {
   size: [number, number];
   collidingWith: Set<Entity> = new Set();
-  onCollide: (entities: Entity[]) => void;
+  inFov: Set<Entity> = new Set();
 
-  transform: TransformComponent | undefined;
+  // @ts-ignore it's initialized in start()
+  transform: TransformComponent;
 
-  constructor(
-    entity: Entity,
-    size: [number, number],
-    onCollide: (entities: Entity[]) => void
-  ) {
+  constructor(entity: Entity, size: [number, number]) {
     super(entity);
     this.size = size;
-    this.onCollide = onCollide;
   }
 
   start() {
-    this.transform = COMPONENTS[this.entity].transform;
+    this.transform = COMPONENTS[this.entity].transform!;
     if (!this.transform) {
       throw new Error(`no transform on ${this.entity}`);
     }
@@ -37,10 +43,38 @@ export class Collider extends BaseComponent implements IComponent {
     ctx.rect(
       this.transform?.x!,
       this.transform?.y!,
-      this.size[0],
-      this.size[1]
+      worldSize(this.size[0]),
+      worldSize(this.size[1])
     );
     ctx.closePath();
     ctx.stroke();
   }
+}
+
+export class PlayerCollider extends Collider implements ICollider {
+  onCollide(entities: Set<Entity>): void {
+    for (const e of entities) {
+      // usuwam entity ze zbioru collidingWith u playera, bo
+      // gdy usuwam npc'a z COMPONENTS, to system kolizji
+      // już przez niego nie przechodzi i nie aktualizuje zbioru
+      // collidingWith.
+      // Można by dodać jakąś funkcję dezaktywującą entity, która wyłącza wszystkie
+      // komponenty i przesuwa entity gdzieś poza mapę.
+      const components = COMPONENTS[e];
+      const { npcLife } = components;
+      if (npcLife) {
+        if (
+          npcLife.lifeProgress >= npcLife.shouldDieAt[0] &&
+          npcLife.lifeProgress <= npcLife.shouldDieAt[1]
+        ) {
+          COMPONENTS.player.collider!.collidingWith.delete(e);
+          delete COMPONENTS[e];
+        }
+      }
+    }
+  }
+}
+
+export class NpcCollider extends Collider implements ICollider {
+  onCollide(entities: Set<Entity>): void {}
 }

@@ -30,9 +30,7 @@ export function collisionSystem() {
   everyEntity((cs1) => {
     everyEntity((cs2) => {
       if (
-        cs1.collider &&
-        cs2.collider &&
-        cs1.collider.entity !== cs2.collider.entity &&
+        cs1.collider?.entity !== cs2.collider?.entity &&
         areSquaresColliding(
           {
             x: cs1.transform?.x!,
@@ -48,13 +46,14 @@ export function collisionSystem() {
       ) {
         cs1.collider!.collidingWith.add(cs2.collider!.entity);
         cs2.collider!.collidingWith.add(cs1.collider!.entity);
-        cs1.collider.onCollide([...cs1.collider.collidingWith]);
-        cs2.collider.onCollide([...cs2.collider.collidingWith]);
-      } else {
+        cs1.collider!.onCollide(cs1.collider!.collidingWith);
+        cs2.collider!.onCollide(cs2.collider!.collidingWith);
+      } else if (cs1.collider?.entity !== cs2.collider?.entity) {
         cs1.collider!.collidingWith.delete(cs2.collider!.entity);
         cs2.collider!.collidingWith.delete(cs1.collider!.entity);
       }
     });
+
     if (import.meta.env.DEV) {
       cs1.collider?.DEBUG_render(ctx);
     }

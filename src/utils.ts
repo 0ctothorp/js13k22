@@ -39,9 +39,7 @@ export function worldSize(size: number) {
 }
 
 export function range(count: number) {
-  return Array(count)
-    .fill(null)
-    .map((_, i) => i + 1);
+  return [...Array(count).keys()];
 }
 
 export type Square = {

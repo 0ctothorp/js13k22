@@ -162,10 +162,9 @@ export class NPCRenderComponent extends BaseComponent implements Renderer {
       // health bar kill area
       ctx.strokeStyle = "red";
       ctx.beginPath();
-      // TODO: zrandomizować trochę szerokość tej strefy śmierci
-      const lsx = sx + life.diesAtPercent * healthBarWidth - worldSize(10);
+      const lsx = sx + life.shouldDieAt[0] * healthBarWidth;
       ctx.moveTo(lsx, sy);
-      ctx.lineTo(lsx + worldSize(20), sy);
+      ctx.lineTo(sx + life.shouldDieAt[1] * healthBarWidth, sy);
       ctx.closePath();
       ctx.stroke();
 
@@ -188,14 +187,15 @@ export class NPCRenderComponent extends BaseComponent implements Renderer {
 }
 
 export class NPCLifeComponent extends BaseComponent {
-  diesAtPercent = -1;
+  shouldDieAt = [0, 1];
   lifeProgress = 0;
   living = true;
 
   static LIFE_PROGRESS_RATE = 0.00005;
 
   start() {
-    this.diesAtPercent = Math.min(Math.random() + 0.25, 0.75);
+    const dieAt = Math.min(Math.random() + 0.25, 0.75);
+    this.shouldDieAt = [dieAt - 0.1, dieAt + 0.1];
   }
 
   update(deltaTime: number) {
