@@ -1,5 +1,5 @@
 import { Entity } from "../entities";
-import { range, worldSize } from "../utils";
+import { worldSize } from "../utils";
 import { BaseComponent, IComponent, TransformComponent } from "./common";
 import { COMPONENTS } from "./componentsMap";
 
@@ -15,7 +15,7 @@ export interface ICollider extends IComponent {
 export class Collider extends BaseComponent implements IComponent {
   size: [number, number];
   collidingWith: Set<Entity> = new Set();
-  inFov: Set<Entity> = new Set();
+  enabled: boolean = true;
 
   // @ts-ignore it's initialized in start()
   transform: TransformComponent;
@@ -48,30 +48,6 @@ export class Collider extends BaseComponent implements IComponent {
     );
     ctx.closePath();
     ctx.stroke();
-  }
-}
-
-export class PlayerCollider extends Collider implements ICollider {
-  onCollide(entities: Set<Entity>): void {
-    for (const e of entities) {
-      // usuwam entity ze zbioru collidingWith u playera, bo
-      // gdy usuwam npc'a z COMPONENTS, to system kolizji
-      // już przez niego nie przechodzi i nie aktualizuje zbioru
-      // collidingWith.
-      // Można by dodać jakąś funkcję dezaktywującą entity, która wyłącza wszystkie
-      // komponenty i przesuwa entity gdzieś poza mapę.
-      const components = COMPONENTS[e];
-      const { npcLife } = components;
-      if (npcLife) {
-        if (
-          npcLife.lifeProgress >= npcLife.shouldDieAt[0] &&
-          npcLife.lifeProgress <= npcLife.shouldDieAt[1]
-        ) {
-          COMPONENTS.player.collider!.collidingWith.delete(e);
-          delete COMPONENTS[e];
-        }
-      }
-    }
   }
 }
 

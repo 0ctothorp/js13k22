@@ -191,7 +191,7 @@ export class NPCLifeComponent extends BaseComponent {
   lifeProgress = 0;
   living = true;
 
-  static LIFE_PROGRESS_RATE = 0.00005;
+  static LIFE_PROGRESS_RATE = 0.0005;
 
   start() {
     const dieAt = Math.min(Math.random() + 0.25, 0.75);

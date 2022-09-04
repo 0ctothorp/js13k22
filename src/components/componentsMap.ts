@@ -1,17 +1,21 @@
 import { worldSize } from "../utils";
 import { IComponent, Renderer, TransformComponent } from "./common";
-import { DeathRenderComponent, PlayerMovement } from "./death";
+import {
+  DeathRenderComponent,
+  PlayerCollider,
+  PlayerHealth,
+  PlayerMovement,
+} from "./death";
 import { NPCLifeComponent, NPCMovement, NPCRenderComponent } from "./npc";
-import { ICollider, NpcCollider, PlayerCollider } from "./physics";
-import { PlayerHealth } from "./uiComponents";
+import { NpcCollider } from "./collider";
 
 export type Components = {
   transform: TransformComponent;
   renderer: Renderer;
   movement: IComponent;
   npcLife: NPCLifeComponent;
-  ui: IComponent;
-  collider: ICollider;
+  collider: PlayerCollider | NpcCollider;
+  ui: PlayerHealth | IComponent;
 };
 
 export const COMPONENTS: Record<string, Partial<Components>> = {

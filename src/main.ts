@@ -33,7 +33,7 @@ function loop(time: number) {
   clearCanvas();
 
   // systems that draw something come after clearCanvas()
-  collisionSystem();
+  collisionSystem(deltaTime);
   renderingSystem();
   uiSystem();
 

@@ -1,6 +1,9 @@
-import { INPUT, LAST_MOVEMENT_KEY, MOVEMENT } from "../input";
+import { Entity } from "../entities";
+import { GAME } from "../game";
+import { INPUT, MOVEMENT } from "../input";
 import { SPRITES, SPRITESHEET } from "../sprites";
-import { worldSize } from "../utils";
+import { range, worldSize } from "../utils";
+import { Collider, ICollider } from "./collider";
 import { BaseComponent, IComponent, Renderer } from "./common";
 import { COMPONENTS } from "./componentsMap";
 
@@ -63,5 +66,76 @@ export class PlayerMovement extends BaseComponent implements IComponent {
       default:
         break;
     }
+  }
+}
+
+export class PlayerHealth extends BaseComponent implements IComponent {
+  hearts: number = 3;
+
+  render(ctx: CanvasRenderingContext2D) {
+    ctx.font = "40px sans-serif";
+    ctx.fillText(
+      range(this.hearts)
+        .map(() => "💗")
+        .join(""),
+      window.innerWidth - 180,
+      50
+    );
+  }
+}
+
+export class PlayerCollider extends Collider implements ICollider {
+  playerHealth: PlayerHealth | undefined;
+  disabledTime: number = -1;
+
+  start() {
+    this.playerHealth = COMPONENTS.player.ui as PlayerHealth;
+    if (!this.playerHealth) {
+      throw new Error("no health component on player");
+    }
+  }
+
+  update(deltaTime: number) {
+    if (
+      !this.enabled &&
+      this.disabledTime > -1 &&
+      Date.now() >= this.disabledTime + 1000
+    ) {
+      this.enabled = true;
+    }
+  }
+
+  onCollide(entities: Set<Entity>): void {
+    for (const e of entities) {
+      // usuwam entity ze zbioru collidingWith u playera, bo
+      // gdy usuwam npc'a z COMPONENTS, to system kolizji
+      // już przez niego nie przechodzi i nie aktualizuje zbioru
+      // collidingWith.
+      // Można by dodać jakąś funkcję dezaktywującą entity, która wyłącza wszystkie
+      // komponenty i przesuwa entity gdzieś poza mapę.
+      const components = COMPONENTS[e];
+      const { npcLife } = components;
+      if (npcLife) {
+        if (
+          npcLife.lifeProgress >= npcLife.shouldDieAt[0] &&
+          npcLife.lifeProgress <= npcLife.shouldDieAt[1]
+        ) {
+          COMPONENTS.player.collider!.collidingWith.delete(e);
+          delete COMPONENTS[e];
+        }
+
+        if (e.startsWith("npc") && !npcLife.living) {
+          this.playerHealth!.hearts -= 1;
+          if (this.playerHealth!.hearts === 0) {
+            this.enabled = false;
+            GAME.screen = "uded";
+            return;
+          }
+          this.enabled = false;
+          this.disabledTime = Date.now();
+        }
+      }
+    }
+    console.groupEnd();
   }
 }

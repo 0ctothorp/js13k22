@@ -39,6 +39,9 @@ export function worldSize(size: number) {
 }
 
 export function range(count: number) {
+  if (count < 1) {
+    return [];
+  }
   return [...Array(count).keys()];
 }
 

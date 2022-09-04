@@ -26,11 +26,15 @@ export function uiSystem() {
   everyEntity((components) => components.ui?.render?.(ctx));
 }
 
-export function collisionSystem() {
+export function collisionSystem(deltaTime: number) {
   everyEntity((cs1) => {
     everyEntity((cs2) => {
       if (
-        cs1.collider?.entity !== cs2.collider?.entity &&
+        cs1.collider &&
+        cs2.collider &&
+        cs1.collider.entity !== cs2.collider.entity &&
+        cs1.collider.enabled &&
+        cs2.collider.enabled &&
         areSquaresColliding(
           {
             x: cs1.transform?.x!,
@@ -58,4 +62,6 @@ export function collisionSystem() {
       cs1.collider?.DEBUG_render(ctx);
     }
   });
+
+  everyEntity((components) => components.collider.update?.(deltaTime));
 }
