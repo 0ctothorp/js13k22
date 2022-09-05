@@ -1,5 +1,6 @@
 import { clearCanvas, ctx } from "./canvas";
-import { COMPONENTS } from "./components/componentsMap";
+import { initializeComponents } from "./components/componentsMap";
+import { GAME } from "./game";
 import {
   collisionSystem,
   movementSystem,
@@ -14,12 +15,7 @@ window.DEBUG = true;
 const debugDrawFPS = getDebugDrawFPS(ctx);
 
 // initialize all components
-for (const cs of Object.values(COMPONENTS)) {
-  for (const c of Object.values(cs)) {
-    // @ts-ignore
-    c?.start?.();
-  }
-}
+initializeComponents();
 
 let prevTime = 0;
 function loop(time: number) {
@@ -27,13 +23,17 @@ function loop(time: number) {
   prevTime = time;
 
   // game logic systems that don't render anything come before clearCanvas()
-  movementSystem(deltaTime);
-  npcLifeSystem(deltaTime);
+  if (GAME.screen === "game") {
+    movementSystem(deltaTime);
+    npcLifeSystem(deltaTime);
+  }
 
   clearCanvas();
 
   // systems that draw something come after clearCanvas()
-  collisionSystem(deltaTime);
+  if (GAME.screen === "game") {
+    collisionSystem(deltaTime);
+  }
   renderingSystem();
   uiSystem();
 

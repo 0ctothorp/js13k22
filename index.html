@@ -32,10 +32,32 @@
         height: 100vh;
         overflow: hidden;
       }
+
+      #ui {
+        width: 100vw;
+        height: 100vh;
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: grid;
+        place-items: center;
+      }
+
+      #uded {
+        background: red;
+        padding: 20px;
+        display: none;
+      }
     </style>
   </head>
   <body>
     <canvas></canvas>
+    <div id="ui">
+      <div id="uded">
+        <p>U DED LOL</p>
+        <button>restart</button>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
