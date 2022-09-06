@@ -52,5 +52,5 @@ export class Collider extends BaseComponent implements IComponent {
 }
 
 export class NpcCollider extends Collider implements ICollider {
-  onCollide(entities: Set<Entity>): void {}
+  onCollide(): void {}
 }

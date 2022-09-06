@@ -11,8 +11,6 @@ class Game {
 
   constructor() {
     document.querySelector("#uded button")?.addEventListener("click", () => {
-      // reconstruct entities and components
-      console.log("restarting");
       setComponents(0);
       initializeComponents();
       this._screen = "game";
@@ -22,7 +20,16 @@ class Game {
 
   set screen(value) {
     this._screen = value;
-    document.getElementById("uded")!.style.display = "block";
+    switch (value) {
+      case "uded":
+        document.getElementById("uded")!.style.display = "block";
+        break;
+      // case "uwon":
+      //   document.getElementById("uwon")!.style.display = "block";
+      //   break;
+      default:
+        break;
+    }
   }
 
   get screen() {

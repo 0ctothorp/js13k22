@@ -1,13 +1,22 @@
 import { Entity } from "../entities";
 import { GAME } from "../game";
 import { INPUT, MOVEMENT } from "../input";
-import { SPRITES, SPRITESHEET } from "../sprites";
+import { SpriteId, SPRITES, SPRITESHEET } from "../sprites";
 import { range, worldSize } from "../utils";
 import { Collider, ICollider } from "./collider";
 import { BaseComponent, IComponent, Renderer } from "./common";
 import { COMPONENTS } from "./componentsMap";
 
 export class DeathRenderComponent extends BaseComponent implements Renderer {
+  spriteId: SpriteId;
+  size: number;
+
+  constructor(entity: Entity, spriteId: SpriteId, size?: number) {
+    super(entity);
+    this.spriteId = spriteId;
+    this.size = size || 32;
+  }
+
   render(ctx: CanvasRenderingContext2D) {
     const transformComponent = COMPONENTS[this.entity]["transform"];
     if (!transformComponent) {
@@ -17,9 +26,9 @@ export class DeathRenderComponent extends BaseComponent implements Renderer {
 
     const { x, y } = transformComponent;
 
-    const size = worldSize(32);
+    const size = worldSize(this.size);
     ctx.imageSmoothingEnabled = false;
-    const cfg = SPRITES.skull;
+    const cfg = SPRITES[this.spriteId];
     ctx.drawImage(
       SPRITESHEET,
       cfg.x,
@@ -122,6 +131,9 @@ export class PlayerCollider extends Collider implements ICollider {
         ) {
           COMPONENTS.player.collider!.collidingWith.delete(e);
           delete COMPONENTS[e];
+          if (!Object.keys(COMPONENTS).find((x) => x.startsWith("npc"))) {
+            // spawn doors somewhere
+          }
         }
 
         if (e.startsWith("npc") && !npcLife.living) {

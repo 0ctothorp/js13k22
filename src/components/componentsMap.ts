@@ -1,4 +1,4 @@
-import { worldSize } from "../utils";
+import { range, worldSize } from "../utils";
 import { IComponent, Renderer, TransformComponent } from "./common";
 import {
   DeathRenderComponent,
@@ -18,36 +18,45 @@ export type Components = {
   ui: PlayerHealth | IComponent;
 };
 
+function generateNpcs(level: number) {
+  return Object.fromEntries(
+    range(level + 2).map((i) => {
+      const id = `npc${i}`;
+
+      return [
+        id,
+        {
+          transform: new TransformComponent(
+            id,
+            Math.random() * window.innerWidth - 32,
+            Math.random() * window.innerHeight - 32
+          ),
+          renderer: new NPCRenderComponent(id),
+          movement: new NPCMovement(id),
+          npcLife: new NPCLifeComponent(id),
+          collider: new NpcCollider(id, [32, 32]),
+        },
+      ];
+    })
+  );
+}
+
 export function setComponents(level: number) {
+  const npcs = generateNpcs(level);
   COMPONENTS = {
     player: {
       transform: new TransformComponent("player", 100, 100),
-      renderer: new DeathRenderComponent("player"),
+      renderer: new DeathRenderComponent("player", "skull"),
       movement: new PlayerMovement("player"),
       ui: new PlayerHealth("player"),
-      collider: new PlayerCollider("player", [worldSize(32), worldSize(32)]),
+      collider: new PlayerCollider("player", [32, 32]),
     },
-    npc0: {
-      transform: new TransformComponent("npc0", 200, 200),
-      renderer: new NPCRenderComponent("npc0"),
-      movement: new NPCMovement("npc0"),
-      npcLife: new NPCLifeComponent("npc0"),
-      collider: new NpcCollider("npc0", [32, 32]),
+    door: {
+      transform: undefined,
+      renderer: new DeathRenderComponent("door", "door", 64),
+      collider: new DoorCollider("door", 64, 64),
     },
-    npc1: {
-      transform: new TransformComponent("npc1", 300, 300),
-      renderer: new NPCRenderComponent("npc1"),
-      movement: new NPCMovement("npc1"),
-      npcLife: new NPCLifeComponent("npc1"),
-      collider: new NpcCollider("npc1", [32, 32]),
-    },
-    npc2: {
-      transform: new TransformComponent("npc2", 300, 300),
-      renderer: new NPCRenderComponent("npc2"),
-      movement: new NPCMovement("npc2"),
-      npcLife: new NPCLifeComponent("npc2"),
-      collider: new NpcCollider("npc2", [32, 32]),
-    },
+    ...npcs,
   };
 }
 
