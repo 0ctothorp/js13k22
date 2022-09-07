@@ -4,12 +4,18 @@ import { INPUT, MOVEMENT } from "../input";
 import { SpriteId, SPRITES, SPRITESHEET } from "../sprites";
 import { range, worldSize } from "../utils";
 import { Collider, ICollider } from "./collider";
-import { BaseComponent, IComponent, Renderer } from "./common";
+import {
+  BaseComponent,
+  IComponent,
+  Renderer,
+  TransformComponent,
+} from "./common";
 import { COMPONENTS } from "./componentsMap";
 
 export class DeathRenderComponent extends BaseComponent implements Renderer {
   spriteId: SpriteId;
   size: number;
+  transform: TransformComponent | undefined;
 
   constructor(entity: Entity, spriteId: SpriteId, size?: number) {
     super(entity);
@@ -17,14 +23,20 @@ export class DeathRenderComponent extends BaseComponent implements Renderer {
     this.size = size || 32;
   }
 
-  render(ctx: CanvasRenderingContext2D) {
-    const transformComponent = COMPONENTS[this.entity]["transform"];
-    if (!transformComponent) {
+  start() {
+    this.transform = COMPONENTS[this.entity]["transform"];
+    if (!this.transform) {
       console.error(`no transform component on ${this.entity}`);
-      return;
+    }
+  }
+
+  render(ctx: CanvasRenderingContext2D) {
+    if (!this.transform) {
+      this.transform = COMPONENTS[this.entity]["transform"];
+      if (!this.transform) return;
     }
 
-    const { x, y } = transformComponent;
+    const { x, y } = this.transform!;
 
     const size = worldSize(this.size);
     ctx.imageSmoothingEnabled = false;
@@ -136,7 +148,7 @@ export class PlayerCollider extends Collider implements ICollider {
           }
         }
 
-        if (e.startsWith("npc") && !npcLife.living) {
+        if (!npcLife.living) {
           this.playerHealth!.hearts -= 1;
           if (this.playerHealth!.hearts === 0) {
             this.enabled = false;
@@ -147,7 +159,10 @@ export class PlayerCollider extends Collider implements ICollider {
           this.disabledTime = Date.now();
         }
       }
+
+      if (e === "door") {
+        //next level
+      }
     }
-    console.groupEnd();
   }
 }

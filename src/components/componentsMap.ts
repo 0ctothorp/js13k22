@@ -8,6 +8,7 @@ import {
 } from "./death";
 import { NPCLifeComponent, NPCMovement, NPCRenderComponent } from "./npc";
 import { NpcCollider } from "./collider";
+import { DoorCollider } from "./door";
 
 export type Components = {
   transform: TransformComponent;
@@ -43,18 +44,21 @@ function generateNpcs(level: number) {
 
 export function setComponents(level: number) {
   const npcs = generateNpcs(level);
+
+  const door = {
+    transform: undefined,
+    renderer: new DeathRenderComponent("door", "door", 64),
+    collider: new DoorCollider("door", [64, 64]),
+  };
+
   COMPONENTS = {
+    door,
     player: {
       transform: new TransformComponent("player", 100, 100),
       renderer: new DeathRenderComponent("player", "skull"),
       movement: new PlayerMovement("player"),
       ui: new PlayerHealth("player"),
       collider: new PlayerCollider("player", [32, 32]),
-    },
-    door: {
-      transform: undefined,
-      renderer: new DeathRenderComponent("door", "door", 64),
-      collider: new DoorCollider("door", 64, 64),
     },
     ...npcs,
   };

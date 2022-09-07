@@ -1,4 +1,5 @@
 import { ctx } from "./canvas";
+import { TransformComponent } from "./components/common";
 import { COMPONENTS } from "./components/componentsMap";
 import { Entity } from "./entities";
 import { areSquaresColliding, worldSize } from "./utils";
@@ -35,6 +36,8 @@ export function collisionSystem(deltaTime: number) {
         cs1.collider.entity !== cs2.collider.entity &&
         cs1.collider.enabled &&
         cs2.collider.enabled &&
+        cs1.transform &&
+        cs2.transform &&
         areSquaresColliding(
           {
             x: cs1.transform?.x!,
@@ -63,5 +66,6 @@ export function collisionSystem(deltaTime: number) {
     }
   });
 
-  everyEntity((components) => components.collider.update?.(deltaTime));
+  // @ts-ignore
+  everyEntity((components) => components.collider?.update?.(deltaTime));
 }

@@ -189,7 +189,7 @@ export class NPCRenderComponent extends BaseComponent implements Renderer {
 export class NPCLifeComponent extends BaseComponent {
   shouldDieAt = [0, 1];
   lifeProgress = 0;
-  living = true;
+  _living = true;
 
   static LIFE_PROGRESS_RATE = 0.0005;
 
@@ -206,5 +206,27 @@ export class NPCLifeComponent extends BaseComponent {
         this.living = false;
       }
     }
+  }
+
+  set living(value: boolean) {
+    this._living = value;
+
+    if (value) return;
+
+    const npcs = Object.entries(COMPONENTS)
+      .filter(([k]) => k.startsWith("npc"))
+      .map(([, v]) => v);
+
+    if (npcs.every((x) => !x.npcLife?.living)) {
+      COMPONENTS.door.transform = new TransformComponent(
+        "door",
+        Math.random() * (window.innerWidth - worldSize(64)),
+        Math.random() * (window.innerHeight - worldSize(64))
+      );
+    }
+  }
+
+  get living() {
+    return this._living;
   }
 }

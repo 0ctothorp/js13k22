@@ -27,12 +27,12 @@ export class Collider extends BaseComponent implements IComponent {
 
   start() {
     this.transform = COMPONENTS[this.entity].transform!;
-    if (!this.transform) {
-      throw new Error(`no transform on ${this.entity}`);
-    }
   }
 
   DEBUG_render(ctx: CanvasRenderingContext2D) {
+    if (!this.transform && import.meta.env.DEV) {
+      return;
+    }
     if (this.collidingWith.size > 0) {
       ctx.strokeStyle = "rgb(255,0,0)";
     } else {
