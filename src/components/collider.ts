@@ -1,5 +1,5 @@
 import { Entity } from "../entities";
-import { worldSize } from "../utils";
+import { isDebug, worldSize } from "../utils";
 import { BaseComponent, IComponent, TransformComponent } from "./common";
 import { COMPONENTS } from "./componentsMap";
 
@@ -29,8 +29,15 @@ export class Collider extends BaseComponent implements IComponent {
     this.transform = COMPONENTS[this.entity].transform!;
   }
 
+  #getTransform() {
+    if (!this.transform) {
+      this.transform = COMPONENTS[this.entity].transform!;
+    }
+    return this.transform;
+  }
+
   DEBUG_render(ctx: CanvasRenderingContext2D) {
-    if (!this.transform && import.meta.env.DEV) {
+    if (!this.#getTransform() && isDebug()) {
       return;
     }
     if (this.collidingWith.size > 0) {

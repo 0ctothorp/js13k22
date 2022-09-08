@@ -1,5 +1,5 @@
 import { SPRITES, SPRITESHEET } from "../sprites";
-import { worldSize } from "../utils";
+import { isDebug, worldSize } from "../utils";
 import {
   BaseComponent,
   IComponent,
@@ -178,7 +178,7 @@ export class NPCRenderComponent extends BaseComponent implements Renderer {
       ctx.stroke();
     }
 
-    if (import.meta.env.DEV && window.DEBUG) {
+    if (isDebug()) {
       ctx.font = "16px sans-serif";
       ctx.fillStyle = "rgb(0, 255, 0)";
       ctx.fillText(this.entity, x, y - worldSize(20));
@@ -190,6 +190,7 @@ export class NPCLifeComponent extends BaseComponent {
   shouldDieAt = [0, 1];
   lifeProgress = 0;
   _living = true;
+  lifeLength = Math.random() * 2000 - 2000 + 6000;
 
   static LIFE_PROGRESS_RATE = 0.0005;
 
@@ -200,7 +201,7 @@ export class NPCLifeComponent extends BaseComponent {
 
   update(deltaTime: number) {
     if (this.living) {
-      this.lifeProgress += NPCLifeComponent.LIFE_PROGRESS_RATE * deltaTime;
+      this.lifeProgress += deltaTime / this.lifeLength;
       if (this.lifeProgress > 1) {
         this.lifeProgress = 1;
         this.living = false;

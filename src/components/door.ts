@@ -1,7 +1,13 @@
 import { Entity } from "../entities";
+import { GAME } from "../game";
 import { Collider, ICollider } from "./collider";
-import { COMPONENTS } from "./componentsMap";
 
 export class DoorCollider extends Collider implements ICollider {
-  onCollide() {}
+  onCollide(entities: Set<Entity>) {
+    for (const e of entities) {
+      if (e === "player") {
+        GAME.level += 1;
+      }
+    }
+  }
 }

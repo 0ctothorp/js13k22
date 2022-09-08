@@ -8,9 +8,9 @@ import {
   renderingSystem,
   uiSystem,
 } from "./systems";
-import { getDebugDrawFPS } from "./utils";
+import { getDebugDrawFPS, isDebug } from "./utils";
 
-window.DEBUG = true;
+window.DEBUG = false;
 
 const debugDrawFPS = getDebugDrawFPS(ctx);
 
@@ -23,7 +23,7 @@ function loop(time: number) {
   prevTime = time;
 
   // game logic systems that don't render anything come before clearCanvas()
-  if (GAME.screen === "game") {
+  if (GAME.canRunSystems()) {
     movementSystem(deltaTime);
     npcLifeSystem(deltaTime);
   }
@@ -31,13 +31,13 @@ function loop(time: number) {
   clearCanvas();
 
   // systems that draw something come after clearCanvas()
-  if (GAME.screen === "game") {
+  if (GAME.canRunSystems()) {
     collisionSystem(deltaTime);
   }
   renderingSystem();
   uiSystem();
-
-  if (import.meta.env.DEV) {
+  GAME.countdown(deltaTime);
+  if (isDebug()) {
     debugDrawFPS(time);
   }
 

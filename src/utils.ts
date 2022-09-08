@@ -66,3 +66,5 @@ export function loadImage(src: string) {
 }
 
 export function noop() {}
+
+export const isDebug = () => window.DEBUG && import.meta.env.DEV;

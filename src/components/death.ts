@@ -126,7 +126,7 @@ export class PlayerCollider extends Collider implements ICollider {
     }
   }
 
-  onCollide(entities: Set<Entity>): void {
+  onCollide(entities: Set<Entity>) {
     for (const e of entities) {
       // usuwam entity ze zbioru collidingWith u playera, bo
       // gdy usuwam npc'a z COMPONENTS, to system kolizji
@@ -143,12 +143,9 @@ export class PlayerCollider extends Collider implements ICollider {
         ) {
           COMPONENTS.player.collider!.collidingWith.delete(e);
           delete COMPONENTS[e];
-          if (!Object.keys(COMPONENTS).find((x) => x.startsWith("npc"))) {
-            // spawn doors somewhere
-          }
         }
 
-        if (!npcLife.living) {
+        if (!npcLife.living && this.enabled) {
           this.playerHealth!.hearts -= 1;
           if (this.playerHealth!.hearts === 0) {
             this.enabled = false;
@@ -158,10 +155,6 @@ export class PlayerCollider extends Collider implements ICollider {
           this.enabled = false;
           this.disabledTime = Date.now();
         }
-      }
-
-      if (e === "door") {
-        //next level
       }
     }
   }
