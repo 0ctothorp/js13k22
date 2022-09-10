@@ -1,12 +1,15 @@
+import { Entity } from "../entities";
+import { GAME } from "../game";
 import { SPRITES, SPRITESHEET } from "../sprites";
 import { isDebug, worldSize } from "../utils";
+import { Collider, ICollider } from "./collider";
 import {
   BaseComponent,
   IComponent,
   Renderer,
   TransformComponent,
 } from "./common";
-import { COMPONENTS } from "./componentsMap";
+import { COMPONENTS, getMapSize } from "./componentsMap";
 
 export class NPCMovement extends BaseComponent implements IComponent {
   speed: number = 0.2;
@@ -39,50 +42,36 @@ export class NPCMovement extends BaseComponent implements IComponent {
     const axis = Math.floor(Math.random() * 2);
     this.direction[axis] = Math.random() > 0.5 ? -1 : 1;
     this.direction[Math.abs(axis - 1)] = 0;
-  }
-
-  private isOutOfBoundsBy(distance: number) {
-    return (
-      this.transform!.x > window.innerWidth + distance ||
-      this.transform!.x < -distance ||
-      this.transform!.y < -distance ||
-      this.transform!.y > window.innerHeight + distance
-    );
+    this.accumulatedTime = 0;
   }
 
   update(deltaTime: number) {
     const moveBy = this.speed * deltaTime;
 
     if (this.life!.living) {
-      if (this.isOutOfBoundsBy(20) && this.accumulatedTime > 0) {
-        this.direction[0] = -this.direction[0];
-        this.direction[1] = -this.direction[1];
-        this.accumulatedTime = 0;
-        return;
-      }
-
       if (this.accumulatedTime >= 2000) {
         this.recomputeDirection();
-        this.accumulatedTime = 0;
         return;
       }
 
       this.accumulatedTime += deltaTime;
 
       if (this.direction[1] === 1) {
-        this.transform!.y -= moveBy;
+        this.#tryMoveY(-moveBy);
         return;
       }
       if (this.direction[1] === -1) {
-        this.transform!.y += moveBy;
+        this.#tryMoveY(moveBy);
         return;
       }
       if (this.direction[0] === -1) {
-        this.transform!.x -= moveBy;
+        // this.transform!.x -= moveBy;
+        this.recomputeDirection();
         return;
       }
       if (this.direction[0] === 1) {
-        this.transform!.x += moveBy;
+        // this.transform!.x += moveBy;
+        this.recomputeDirection();
         return;
       }
     } else {
@@ -95,6 +84,26 @@ export class NPCMovement extends BaseComponent implements IComponent {
         tt.x += moveBy * -Math.sign(xdiff);
       } else {
         tt.y += moveBy * -Math.sign(ydiff);
+      }
+    }
+  }
+
+  #tryMoveY(by: number) {
+    const map = getMapSize(GAME.level);
+    const result = this.transform!.y + by;
+    if (by < 0) {
+      if (result < map.y) {
+        this.transform!.y = map.y;
+        this.recomputeDirection();
+      } else {
+        this.transform!.y = result;
+      }
+    } else {
+      if (result > map.y + (map.height - 1) * worldSize(32)) {
+        this.transform!.y = map.y + (map.height - 1) * worldSize(32);
+        this.recomputeDirection();
+      } else {
+        this.transform!.y = result;
       }
     }
   }
@@ -190,7 +199,7 @@ export class NPCLifeComponent extends BaseComponent {
   shouldDieAt = [0, 1];
   lifeProgress = 0;
   _living = true;
-  lifeLength = Math.random() * 2000 - 2000 + 6000;
+  lifeLength = Math.random() * 2000 - 2000 + 12000;
 
   static LIFE_PROGRESS_RATE = 0.0005;
 
@@ -219,15 +228,19 @@ export class NPCLifeComponent extends BaseComponent {
       .map(([, v]) => v);
 
     if (npcs.every((x) => !x.npcLife?.living)) {
-      COMPONENTS.door.transform = new TransformComponent(
-        "door",
-        Math.random() * (window.innerWidth - worldSize(64)),
-        Math.random() * (window.innerHeight - worldSize(64))
-      );
+      this.#spawnDoor();
     }
+  }
+
+  #spawnDoor() {
+    COMPONENTS.door.spawner.spawn();
   }
 
   get living() {
     return this._living;
   }
+}
+
+export class NpcCollider extends Collider implements ICollider {
+  onCollide() {}
 }

@@ -3,14 +3,15 @@ import {
   initializeComponents,
   setComponents,
 } from "./components/componentsMap";
+import { worldSize } from "./utils";
 
 type Screen = "game" | "uded" | "mainmenu";
 
 class Game {
   private _screen: Screen = "game";
   private _paused = false;
-  #_level = 1;
-  waitingForStart = 0;
+  #_level = 0;
+  waitingForStart = 3000;
 
   constructor() {
     document.querySelector("#uded button")?.addEventListener("click", () => {
@@ -58,8 +59,10 @@ class Game {
   countdown(deltaTime: number) {
     if (this.waitingForStart === 0) return;
 
+    ctx.fillStyle = "green";
+    ctx.font = `${worldSize(128)}px sans-serif`;
     ctx.fillText(
-      parseInt((this.waitingForStart / 1000).toString()).toString(),
+      parseInt((this.waitingForStart / 1000 + 1).toString()).toString(),
       window.innerWidth / 2 - 10,
       window.innerHeight / 2 - 10
     );

@@ -1,5 +1,5 @@
 import { clearCanvas, ctx } from "./canvas";
-import { initializeComponents } from "./components/componentsMap";
+import { getMapSize, initializeComponents } from "./components/componentsMap";
 import { GAME } from "./game";
 import {
   collisionSystem,
@@ -8,7 +8,7 @@ import {
   renderingSystem,
   uiSystem,
 } from "./systems";
-import { getDebugDrawFPS, isDebug } from "./utils";
+import { getDebugDrawFPS, isDebug, worldSize } from "./utils";
 
 window.DEBUG = false;
 
@@ -40,6 +40,12 @@ function loop(time: number) {
   if (isDebug()) {
     debugDrawFPS(time);
   }
+
+  // const map = getMapSize(GAME.level);
+  // ctx.strokeStyle = "rgb(0, 255, 0)";
+  // ctx.lineWidth = 1;
+  // ctx.rect(map.x, map.y, map.width * worldSize(32), map.height * worldSize(32));
+  // ctx.stroke();
 
   requestAnimationFrame(loop);
 }

@@ -90,18 +90,26 @@ export class PlayerMovement extends BaseComponent implements IComponent {
   }
 }
 
+// TODO: pomysł - zaczynasz z jednym życiem, a kolejne zyskujesz poprzez uśmiercenie NPC.
 export class PlayerHealth extends BaseComponent implements IComponent {
   hearts: number = 3;
 
   render(ctx: CanvasRenderingContext2D) {
-    ctx.font = "40px sans-serif";
-    ctx.fillText(
-      range(this.hearts)
-        .map(() => "💗")
-        .join(""),
-      window.innerWidth - 180,
-      50
-    );
+    ctx.imageSmoothingEnabled = false;
+    const cfg = SPRITES.heart;
+    range(this.hearts).forEach((i) => {
+      ctx.drawImage(
+        SPRITESHEET,
+        cfg.x,
+        cfg.y,
+        cfg.size,
+        cfg.size,
+        window.innerWidth - (i + 1) * worldSize(64),
+        worldSize(16),
+        worldSize(48),
+        worldSize(48)
+      );
+    });
   }
 }
 

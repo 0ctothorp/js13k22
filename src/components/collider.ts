@@ -57,7 +57,3 @@ export class Collider extends BaseComponent implements IComponent {
     ctx.stroke();
   }
 }
-
-export class NpcCollider extends Collider implements ICollider {
-  onCollide(): void {}
-}

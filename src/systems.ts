@@ -26,15 +26,29 @@ export function uiSystem() {
   everyEntity((components) => components.ui?.render?.(ctx));
 }
 
+type Collision = string;
+const collisions = new Set<Collision>();
+
+function getCollisionId(e1: Entity, e2: Entity) {
+  if (e1 < e2) {
+    return e1 + e2;
+  } else {
+    return e2 + e1;
+  }
+}
+
 export function collisionSystem(deltaTime: number) {
   everyEntity((cs1) => {
     everyEntity((cs2) => {
+      if (!cs1.collider || !cs2.collider) return;
       if (
-        cs1.collider &&
-        cs2.collider &&
+        cs1.collider.entity.startsWith("map") &&
+        cs2.collider.entity.startsWith("map")
+      )
+        return;
+
+      if (
         cs1.collider.entity !== cs2.collider.entity &&
-        // cs1.collider.enabled &&
-        // cs2.collider.enabled &&
         cs1.transform &&
         cs2.transform &&
         areSquaresColliding(
@@ -50,11 +64,30 @@ export function collisionSystem(deltaTime: number) {
           }
         )
       ) {
-        cs1.collider!.collidingWith.add(cs2.collider!.entity);
-        cs2.collider!.collidingWith.add(cs1.collider!.entity);
-        cs1.collider!.onCollide(cs1.collider!.collidingWith);
-        cs2.collider!.onCollide(cs2.collider!.collidingWith);
-      } else if (cs1.collider?.entity !== cs2.collider?.entity) {
+        const collisionId = getCollisionId(
+          cs1.collider.entity,
+          cs2.collider.entity
+        );
+        if (!collisions.has(collisionId)) {
+          console.log([...collisions]);
+
+          collisions.add(collisionId);
+          cs1.collider!.collidingWith.add(cs2.collider!.entity);
+          cs2.collider!.collidingWith.add(cs1.collider!.entity);
+          // @ts-ignore
+          cs1.collider!.onCollide?.(cs1.collider!.collidingWith);
+          // @ts-ignore
+          cs2.collider!.onCollide?.(cs2.collider!.collidingWith);
+        }
+      } else if (cs1.collider.entity !== cs2.collider.entity) {
+        const collisionId = getCollisionId(
+          cs1.collider.entity,
+          cs2.collider.entity
+        );
+        if (collisions.has(collisionId)) {
+          collisions.delete(collisionId);
+          console.log([...collisions]);
+        }
         cs1.collider!.collidingWith.delete(cs2.collider!.entity);
         cs2.collider!.collidingWith.delete(cs1.collider!.entity);
       }
