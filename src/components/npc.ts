@@ -65,13 +65,11 @@ export class NPCMovement extends BaseComponent implements IComponent {
         return;
       }
       if (this.direction[0] === -1) {
-        // this.transform!.x -= moveBy;
-        this.recomputeDirection();
+        this.#tryMoveX(-moveBy);
         return;
       }
       if (this.direction[0] === 1) {
-        // this.transform!.x += moveBy;
-        this.recomputeDirection();
+        this.#tryMoveX(moveBy);
         return;
       }
     } else {
@@ -81,9 +79,9 @@ export class NPCMovement extends BaseComponent implements IComponent {
       const xdiff = tt.x - pt.x;
       const ydiff = tt.y - pt.y;
       if (Math.abs(xdiff) > Math.abs(ydiff)) {
-        tt.x += moveBy * -Math.sign(xdiff);
+        this.#tryMoveX(moveBy * -Math.sign(xdiff));
       } else {
-        tt.y += moveBy * -Math.sign(ydiff);
+        this.#tryMoveY(moveBy * -Math.sign(ydiff));
       }
     }
   }
@@ -104,6 +102,26 @@ export class NPCMovement extends BaseComponent implements IComponent {
         this.recomputeDirection();
       } else {
         this.transform!.y = result;
+      }
+    }
+  }
+
+  #tryMoveX(by: number) {
+    const map = getMapSize(GAME.level);
+    const result = this.transform!.x + by;
+    if (by < 0) {
+      if (result < map.x) {
+        this.transform!.x = map.x;
+        this.recomputeDirection();
+      } else {
+        this.transform!.x = result;
+      }
+    } else {
+      if (result > map.x + (map.width - 1) * worldSize(32)) {
+        this.transform!.x = map.x + (map.width - 1) * worldSize(32);
+        this.recomputeDirection();
+      } else {
+        this.transform!.x = result;
       }
     }
   }

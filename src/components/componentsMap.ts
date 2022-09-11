@@ -14,6 +14,7 @@ import {
 } from "./npc";
 import { Collider } from "./collider";
 import { DoorCollider, DoorSpawner } from "./door";
+import { tilePositionToScreenPosition } from "../tiles";
 
 export type Components = {
   transform: TransformComponent;
@@ -47,6 +48,7 @@ export function getMapSize(level: number) {
   };
 }
 
+const OCCUPIED_TILES = new Set<string>();
 function generateNpcs(level: number) {
   const map = getMapSize(level);
 
@@ -54,14 +56,17 @@ function generateNpcs(level: number) {
     range(level + 1).map((i) => {
       const id = `npc${i}`;
 
+      const tile = {
+        x: Math.floor(Math.random() * map.width),
+        y: Math.floor(Math.random() * map.height),
+      };
+      // TODO: właściwie, to to powinien sobie renderer wołać, a transform powinien przechowywać pozycję kafelka
+      const screen = tilePositionToScreenPosition(tile.x, tile.y);
+
       return [
         id,
         {
-          transform: new TransformComponent(
-            id,
-            Math.random() * (map.width - 1) * worldSize(32) + map.x,
-            Math.random() * (map.height - 1) * worldSize(32) + map.y
-          ),
+          transform: new TransformComponent(id, screen.x, screen.y),
           renderer: new NPCRenderComponent(id),
           movement: new NPCMovement(id),
           npcLife: new NPCLifeComponent(id),
@@ -77,12 +82,10 @@ function createMap(level: number) {
 
   const ec: typeof COMPONENTS = {};
   const h = height + 2;
-  const topy = worldSize(window.innerHeight / 2 - (h / 2) * worldSize(32));
-  const bottomy = worldSize(
-    window.innerHeight / 2 + (height / 2) * worldSize(32)
-  );
-
+  const topy = window.innerHeight / 2 - (h / 2) * worldSize(32);
+  const bottomy = window.innerHeight / 2 + (height / 2) * worldSize(32);
   const w = width + 2;
+
   range(w).forEach((i) => {
     // create top and bottom walls
     const topEntity = `maptop${i}` as const;
@@ -101,8 +104,8 @@ function createMap(level: number) {
     };
   });
 
-  const leftx = worldSize(window.innerWidth / 2 - (width / 2) * worldSize(32));
-  const rightx = worldSize(window.innerWidth / 2 + (width / 2) * worldSize(32));
+  const leftx = window.innerWidth / 2 - (width / 2) * worldSize(32);
+  const rightx = window.innerWidth / 2 + (width / 2) * worldSize(32);
 
   range(height).forEach((i) => {
     // create left and right walls
