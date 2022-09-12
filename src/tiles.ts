@@ -1,6 +1,6 @@
 import { getMapSize } from "./components/componentsMap";
 import { GAME } from "./game";
-import { Point } from "./types";
+import { Point } from "./commonTypes";
 import { UNIT, worldSize } from "./utils";
 
 export function tilePositionToScreenPosition({ x, y }: Point) {

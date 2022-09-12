@@ -28,20 +28,15 @@ export type Components = {
   camera: Camera;
 };
 
-const baseMapX = 55;
-const baseMapY = 15;
+const baseMapX = 13;
+const baseMapY = 12;
 
 export function getMapSize(level: number) {
   let width = baseMapX,
     height = baseMapY;
 
-  if (level % 2 === 0) {
-    width = baseMapX + level;
-    height = baseMapY + level - 1;
-  } else {
-    width = baseMapX + level - 1;
-    height = baseMapY + level;
-  }
+  width = baseMapX + level;
+  height = baseMapY + Math.floor(level * 0.5);
 
   return {
     width,
@@ -154,8 +149,8 @@ export function setComponents(level: number) {
 
   const door = {
     transform: undefined,
-    renderer: new DeathRenderComponent("door", "door", 64),
-    collider: new DoorCollider("door", [64, 64]),
+    renderer: new DeathRenderComponent("door", "door", UNIT * 2),
+    collider: new DoorCollider("door", [UNIT * 2, UNIT * 2]),
     spawner: new DoorSpawner("door"),
   };
 

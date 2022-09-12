@@ -1,6 +1,7 @@
 import { Entity } from "../entities";
 import { SPRITES, SPRITESHEET } from "../sprites";
 import { isDebug, UNIT, worldSize } from "../utils";
+import { Camera } from "./camera";
 import { Collider, ICollider } from "./collider";
 import {
   BaseComponent,
@@ -32,9 +33,6 @@ export class NPCMovement extends Movement implements IComponent {
     }
 
     this.playerTransform = COMPONENTS.player.transform;
-    if (!this.playerTransform) {
-      throw "no transform component on player";
-    }
 
     this.recomputeDirection();
   }
@@ -88,13 +86,11 @@ export class NPCRenderComponent extends BaseComponent implements Renderer {
   render(ctx: CanvasRenderingContext2D) {
     const transformComponent = COMPONENTS[this.entity]["transform"];
     if (!transformComponent) {
-      console.error(`no transform component on ${this.entity}`);
       return;
     }
 
     const life = COMPONENTS[this.entity]["npcLife"];
     if (!life) {
-      console.error(`no life component on ${this.entity}`);
       return;
     }
 
@@ -110,8 +106,8 @@ export class NPCRenderComponent extends BaseComponent implements Renderer {
         spritecfg.y,
         spritecfg.size,
         spritecfg.size,
-        x,
-        y,
+        x + Camera.getInstance().offset.x,
+        y + Camera.getInstance().offset.y,
         npcSize,
         npcSize
       );
@@ -123,8 +119,8 @@ export class NPCRenderComponent extends BaseComponent implements Renderer {
         spritecfg.y,
         spritecfg.size,
         spritecfg.size,
-        x,
-        y,
+        x + Camera.getInstance().offset.x,
+        y + Camera.getInstance().offset.y,
         npcSize,
         npcSize
       );
@@ -136,8 +132,9 @@ export class NPCRenderComponent extends BaseComponent implements Renderer {
       ctx.strokeStyle = "green";
       ctx.lineWidth = worldSize(11);
       ctx.beginPath();
-      const sx = x + npcSize / 2 - healthBarWidth / 2;
-      const sy = y - worldSize(10);
+      const sx =
+        x + npcSize / 2 - healthBarWidth / 2 + Camera.getInstance().offset.x;
+      const sy = y - worldSize(10) + Camera.getInstance().offset.y;
       ctx.moveTo(sx, sy);
       ctx.lineTo(sx + healthBarWidth, sy);
       ctx.closePath();
@@ -174,9 +171,7 @@ export class NPCLifeComponent extends BaseComponent {
   shouldDieAt = [0, 1];
   lifeProgress = 0;
   _living = true;
-  lifeLength = Math.random() * 2000 - 2000 + 12000;
-
-  static LIFE_PROGRESS_RATE = 0.0005;
+  lifeLength = Math.random() * 5000 + 10000;
 
   start() {
     const dieAt = Math.min(Math.random() + 0.25, 0.75);

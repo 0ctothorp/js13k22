@@ -43,30 +43,17 @@ export class DeathRenderComponent extends BaseComponent implements Renderer {
     const size = worldSize(this.size);
     ctx.imageSmoothingEnabled = false;
     const cfg = SPRITES[this.spriteId];
-    // if (this.entity !== "player")
     ctx.drawImage(
       SPRITESHEET,
       cfg.x,
       cfg.y,
       cfg.size,
       cfg.size,
-      x,
-      y,
+      x + Camera.getInstance().offset.x,
+      y + Camera.getInstance().offset.y,
       size,
       size
     );
-    // else
-    //   ctx.drawImage(
-    //     SPRITESHEET,
-    //     cfg.x,
-    //     cfg.y,
-    //     cfg.size,
-    //     cfg.size,
-    //     x * worldSize(UNIT) + Camera.getInstance().offset.x,
-    //     y * worldSize(UNIT),
-    //     size,
-    //     size
-    //   );
   }
 }
 
@@ -97,6 +84,7 @@ export class PlayerMovement extends Movement implements IComponent {
   }
 }
 
+// TODO: just use HTML for UI
 // TODO: pomysł - zaczynasz z jednym życiem, a kolejne zyskujesz poprzez uśmiercenie NPC.
 export class PlayerHealth extends BaseComponent implements IComponent {
   hearts: number = 3;
@@ -131,7 +119,7 @@ export class PlayerCollider extends Collider implements ICollider {
     }
   }
 
-  update(deltaTime: number) {
+  update() {
     if (
       !this.enabled &&
       this.disabledTime > -1 &&
@@ -158,6 +146,7 @@ export class PlayerCollider extends Collider implements ICollider {
         ) {
           COMPONENTS.player.collider!.collidingWith.delete(e);
           delete COMPONENTS[e];
+          GAME.score += 1;
 
           if (
             Object.keys(COMPONENTS).filter((x) => x.startsWith("npc"))

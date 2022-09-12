@@ -1,5 +1,5 @@
 import { clearCanvas, ctx } from "./canvas";
-import { getMapSize, initializeComponents } from "./components/componentsMap";
+import { initializeComponents } from "./components/componentsMap";
 import { GAME } from "./game";
 import {
   cameraSystem,
@@ -9,8 +9,9 @@ import {
   renderingSystem,
   uiSystem,
 } from "./systems";
-import { getDebugDrawFPS, isDebug, worldSize } from "./utils";
+import { getDebugDrawFPS, isDebug } from "./utils";
 
+// @ts-ignore
 window.DEBUG = false;
 
 const debugDrawFPS = getDebugDrawFPS(ctx);
@@ -28,7 +29,7 @@ function loop(time: number) {
     movementSystem(deltaTime);
     npcLifeSystem(deltaTime);
   }
-  cameraSystem(deltaTime);
+  cameraSystem();
 
   clearCanvas();
 

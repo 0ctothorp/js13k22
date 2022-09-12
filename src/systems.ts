@@ -22,8 +22,8 @@ export function npcLifeSystem(deltaTime: number) {
   everyEntity((components) => components.npcLife?.update?.(deltaTime));
 }
 
-export function cameraSystem(deltaTime: number) {
-  COMPONENTS.camera.camera?.update(deltaTime);
+export function cameraSystem() {
+  COMPONENTS.camera.camera?.update();
 }
 
 export function uiSystem() {
