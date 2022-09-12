@@ -11,6 +11,7 @@ export class DoorCollider extends Collider implements ICollider {
     for (const e of entities) {
       if (e === "player") {
         GAME.level += 1;
+        (document.querySelector("#powerup-audio") as HTMLAudioElement).play();
       }
     }
   }

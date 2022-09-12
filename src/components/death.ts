@@ -27,9 +27,6 @@ export class DeathRenderComponent extends BaseComponent implements Renderer {
 
   start() {
     this.transform = COMPONENTS[this.entity]["transform"];
-    if (!this.transform) {
-      console.error(`no transform component on ${this.entity}`);
-    }
   }
 
   render(ctx: CanvasRenderingContext2D) {
@@ -147,6 +144,7 @@ export class PlayerCollider extends Collider implements ICollider {
           COMPONENTS.player.collider!.collidingWith.delete(e);
           delete COMPONENTS[e];
           GAME.score += 1;
+          (document.querySelector("#hit-audio") as HTMLAudioElement).play();
 
           if (
             Object.keys(COMPONENTS).filter((x) => x.startsWith("npc"))
@@ -158,6 +156,7 @@ export class PlayerCollider extends Collider implements ICollider {
 
         if (!npcLife.living && this.enabled) {
           this.playerHealth!.hearts -= 1;
+          (document.querySelector("#hurt-audio") as HTMLAudioElement).play();
           if (this.playerHealth!.hearts === 0) {
             this.enabled = false;
             GAME.screen = "uded";

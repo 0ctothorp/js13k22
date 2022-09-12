@@ -123,7 +123,6 @@ class Game {
 
   countdown(deltaTime: number) {
     if (this.screen !== "game") return;
-    console.log("hello?");
     if (this.waitingForStart === 0) return;
 
     ctx.fillStyle = "white";
