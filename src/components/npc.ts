@@ -1,30 +1,31 @@
 import { Entity } from "../entities";
-import { GAME } from "../game";
 import { SPRITES, SPRITESHEET } from "../sprites";
-import { isDebug, worldSize } from "../utils";
+import { isDebug, UNIT, worldSize } from "../utils";
 import { Collider, ICollider } from "./collider";
 import {
   BaseComponent,
   IComponent,
+  Movement,
   Renderer,
   TransformComponent,
 } from "./common";
-import { COMPONENTS, getMapSize } from "./componentsMap";
+import { COMPONENTS } from "./componentsMap";
 
-export class NPCMovement extends BaseComponent implements IComponent {
+export class NPCMovement extends Movement implements IComponent {
   speed: number = 0.2;
   direction = [0, 0];
   accumulatedTime: number = 0;
-  transform?: TransformComponent;
   life?: NPCLifeComponent;
   playerTransform?: TransformComponent;
+  boundRecomputeDirection: () => void;
+
+  constructor(entity: Entity) {
+    super(entity);
+    this.boundRecomputeDirection = this.recomputeDirection.bind(this);
+  }
 
   start() {
-    this.transform = COMPONENTS[this.entity].transform!;
-    if (!this.transform) {
-      throw `no transform component on ${this.entity}`;
-    }
-
+    super.start();
     this.life = COMPONENTS[this.entity].npcLife;
     if (!this.life) {
       throw `no life component on ${this.entity}`;
@@ -46,7 +47,7 @@ export class NPCMovement extends BaseComponent implements IComponent {
   }
 
   update(deltaTime: number) {
-    const moveBy = this.speed * deltaTime;
+    const moveBy = worldSize(this.speed * deltaTime);
 
     if (this.life!.living) {
       if (this.accumulatedTime >= 2000) {
@@ -57,20 +58,16 @@ export class NPCMovement extends BaseComponent implements IComponent {
       this.accumulatedTime += deltaTime;
 
       if (this.direction[1] === 1) {
-        this.#tryMoveY(-moveBy);
-        return;
+        this.tryMoveY(-moveBy, this.boundRecomputeDirection);
       }
       if (this.direction[1] === -1) {
-        this.#tryMoveY(moveBy);
-        return;
+        this.tryMoveY(moveBy, this.boundRecomputeDirection);
       }
       if (this.direction[0] === -1) {
-        this.#tryMoveX(-moveBy);
-        return;
+        this.tryMoveX(-moveBy, this.boundRecomputeDirection);
       }
       if (this.direction[0] === 1) {
-        this.#tryMoveX(moveBy);
-        return;
+        this.tryMoveX(moveBy, this.boundRecomputeDirection);
       }
     } else {
       // chase the player
@@ -79,49 +76,9 @@ export class NPCMovement extends BaseComponent implements IComponent {
       const xdiff = tt.x - pt.x;
       const ydiff = tt.y - pt.y;
       if (Math.abs(xdiff) > Math.abs(ydiff)) {
-        this.#tryMoveX(moveBy * -Math.sign(xdiff));
+        this.tryMoveX(moveBy * -Math.sign(xdiff), this.boundRecomputeDirection);
       } else {
-        this.#tryMoveY(moveBy * -Math.sign(ydiff));
-      }
-    }
-  }
-
-  #tryMoveY(by: number) {
-    const map = getMapSize(GAME.level);
-    const result = this.transform!.y + by;
-    if (by < 0) {
-      if (result < map.y) {
-        this.transform!.y = map.y;
-        this.recomputeDirection();
-      } else {
-        this.transform!.y = result;
-      }
-    } else {
-      if (result > map.y + (map.height - 1) * worldSize(32)) {
-        this.transform!.y = map.y + (map.height - 1) * worldSize(32);
-        this.recomputeDirection();
-      } else {
-        this.transform!.y = result;
-      }
-    }
-  }
-
-  #tryMoveX(by: number) {
-    const map = getMapSize(GAME.level);
-    const result = this.transform!.x + by;
-    if (by < 0) {
-      if (result < map.x) {
-        this.transform!.x = map.x;
-        this.recomputeDirection();
-      } else {
-        this.transform!.x = result;
-      }
-    } else {
-      if (result > map.x + (map.width - 1) * worldSize(32)) {
-        this.transform!.x = map.x + (map.width - 1) * worldSize(32);
-        this.recomputeDirection();
-      } else {
-        this.transform!.x = result;
+        this.tryMoveY(moveBy * -Math.sign(ydiff), this.boundRecomputeDirection);
       }
     }
   }
@@ -142,7 +99,7 @@ export class NPCRenderComponent extends BaseComponent implements Renderer {
     }
 
     const { x, y } = transformComponent;
-    const npcSize = worldSize(32);
+    const npcSize = worldSize(UNIT);
     ctx.imageSmoothingEnabled = false;
 
     if (life.living) {
@@ -251,7 +208,7 @@ export class NPCLifeComponent extends BaseComponent {
   }
 
   #spawnDoor() {
-    COMPONENTS.door.spawner.spawn();
+    COMPONENTS.door.spawner!.spawn();
   }
 
   get living() {

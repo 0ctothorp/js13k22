@@ -1,5 +1,7 @@
 import { Entity } from "../entities";
-import { COMPONENTS } from "./componentsMap";
+import { GAME } from "../game";
+import { UNIT, worldSize } from "../utils";
+import { COMPONENTS, getMapSize } from "./componentsMap";
 
 export interface Renderer {
   render(ctx: CanvasRenderingContext2D): void;
@@ -18,18 +20,9 @@ export class BaseComponent {
   constructor(entity: Entity) {
     this.entity = entity;
   }
-}
 
-export class RenderComponent extends BaseComponent implements IComponent {
-  render(ctx: CanvasRenderingContext2D) {
-    const transformComponent = COMPONENTS[this.entity]["transform"];
-    if (!transformComponent) {
-      console.error(`no transform component on ${this.entity}`);
-      return;
-    }
-
-    ctx.fillStyle = "green";
-    ctx.fillRect(transformComponent.x, transformComponent.y, 20, 20);
+  getAllComponents() {
+    return COMPONENTS[this.entity];
   }
 }
 
@@ -41,5 +34,54 @@ export class TransformComponent extends BaseComponent {
     super(entity);
     this.x = x;
     this.y = y;
+  }
+}
+
+export class Movement extends BaseComponent implements IComponent {
+  transform: TransformComponent | undefined;
+
+  start() {
+    console.log(this.entity);
+    this.transform = this.getAllComponents().transform;
+  }
+
+  tryMoveY(by: number, onStuck?: () => void) {
+    const map = getMapSize(GAME.level);
+    const result = this.transform!.y + by;
+    if (by < 0) {
+      if (result < map.y) {
+        this.transform!.y = map.y;
+        onStuck?.();
+      } else {
+        this.transform!.y = result;
+      }
+    } else {
+      if (result > map.y + (map.height - 1) * worldSize(UNIT)) {
+        this.transform!.y = map.y + (map.height - 1) * worldSize(UNIT);
+        onStuck?.();
+      } else {
+        this.transform!.y = result;
+      }
+    }
+  }
+
+  tryMoveX(by: number, onStuck?: () => void) {
+    const map = getMapSize(GAME.level);
+    const result = this.transform!.x + by;
+    if (by < 0) {
+      if (result < map.x) {
+        this.transform!.x = map.x;
+        onStuck?.();
+      } else {
+        this.transform!.x = result;
+      }
+    } else {
+      if (result > map.x + (map.width - 1) * worldSize(UNIT)) {
+        this.transform!.x = map.x + (map.width - 1) * worldSize(UNIT);
+        onStuck?.();
+      } else {
+        this.transform!.x = result;
+      }
+    }
   }
 }

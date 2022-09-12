@@ -9,7 +9,6 @@ type Screen = "game" | "uded" | "mainmenu";
 
 class Game {
   private _screen: Screen = "game";
-  private _paused = false;
   #_level = 0;
   waitingForStart = 3000;
 
@@ -28,9 +27,6 @@ class Game {
       case "uded":
         document.getElementById("uded")!.style.display = "block";
         break;
-      // case "uwon":
-      //   document.getElementById("uwon")!.style.display = "block";
-      //   break;
       default:
         break;
     }

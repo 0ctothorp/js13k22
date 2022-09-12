@@ -2,6 +2,7 @@ import { clearCanvas, ctx } from "./canvas";
 import { getMapSize, initializeComponents } from "./components/componentsMap";
 import { GAME } from "./game";
 import {
+  cameraSystem,
   collisionSystem,
   movementSystem,
   npcLifeSystem,
@@ -27,6 +28,7 @@ function loop(time: number) {
     movementSystem(deltaTime);
     npcLifeSystem(deltaTime);
   }
+  cameraSystem(deltaTime);
 
   clearCanvas();
 
@@ -44,7 +46,7 @@ function loop(time: number) {
   // const map = getMapSize(GAME.level);
   // ctx.strokeStyle = "rgb(0, 255, 0)";
   // ctx.lineWidth = 1;
-  // ctx.rect(map.x, map.y, map.width * worldSize(32), map.height * worldSize(32));
+  // ctx.rect(map.x, map.y, map.width * worldSize(UNIT), map.height * worldSize(UNIT));
   // ctx.stroke();
 
   requestAnimationFrame(loop);

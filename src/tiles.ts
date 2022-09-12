@@ -1,17 +1,18 @@
 import { getMapSize } from "./components/componentsMap";
 import { GAME } from "./game";
-import { worldSize } from "./utils";
+import { Point } from "./types";
+import { UNIT, worldSize } from "./utils";
 
-export function tilePositionToScreenPosition(x: number, y: number) {
+export function tilePositionToScreenPosition({ x, y }: Point) {
   const map = getMapSize(GAME.level);
   return {
     x:
       window.innerWidth / 2 -
-      (map.width * worldSize(32)) / 2 +
-      x * worldSize(32),
+      (map.width * worldSize(UNIT)) / 2 +
+      x * worldSize(UNIT),
     y:
       window.innerHeight / 2 -
-      (map.height / 2) * worldSize(32) +
-      y * worldSize(32),
+      (map.height / 2) * worldSize(UNIT) +
+      y * worldSize(UNIT),
   };
 }

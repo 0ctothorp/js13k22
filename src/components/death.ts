@@ -2,11 +2,13 @@ import { Entity } from "../entities";
 import { GAME } from "../game";
 import { INPUT, MOVEMENT } from "../input";
 import { SpriteId, SPRITES, SPRITESHEET } from "../sprites";
-import { range, worldSize } from "../utils";
+import { range, UNIT, worldSize } from "../utils";
+import { Camera } from "./camera";
 import { Collider, ICollider } from "./collider";
 import {
   BaseComponent,
   IComponent,
+  Movement,
   Renderer,
   TransformComponent,
 } from "./common";
@@ -20,7 +22,7 @@ export class DeathRenderComponent extends BaseComponent implements Renderer {
   constructor(entity: Entity, spriteId: SpriteId, size?: number) {
     super(entity);
     this.spriteId = spriteId;
-    this.size = size || 32;
+    this.size = size || UNIT;
   }
 
   start() {
@@ -41,6 +43,7 @@ export class DeathRenderComponent extends BaseComponent implements Renderer {
     const size = worldSize(this.size);
     ctx.imageSmoothingEnabled = false;
     const cfg = SPRITES[this.spriteId];
+    // if (this.entity !== "player")
     ctx.drawImage(
       SPRITESHEET,
       cfg.x,
@@ -52,37 +55,41 @@ export class DeathRenderComponent extends BaseComponent implements Renderer {
       size,
       size
     );
+    // else
+    //   ctx.drawImage(
+    //     SPRITESHEET,
+    //     cfg.x,
+    //     cfg.y,
+    //     cfg.size,
+    //     cfg.size,
+    //     x * worldSize(UNIT) + Camera.getInstance().offset.x,
+    //     y * worldSize(UNIT),
+    //     size,
+    //     size
+    //   );
   }
 }
 
-export class PlayerMovement extends BaseComponent implements IComponent {
+export class PlayerMovement extends Movement implements IComponent {
   speed: number = 0.5;
 
   update(deltaTime: number) {
-    const transform = COMPONENTS[this.entity].transform;
-    if (!transform) {
-      console.error("no transform component on player");
-      return;
-    }
-
-    // const pressedKeys = Object.entries(INPUT)
-    //   .filter(([_, v]) => v)
-    //   .map(([k]) => k)
-    //   .filter((k) => ["KeyW", "KeyA", "KeyD", "KeyS"].includes(k));
-
     if (!INPUT[MOVEMENT[0]]) return;
+
+    const moveBy = worldSize(this.speed * deltaTime);
+
     switch (MOVEMENT[0]) {
       case "KeyW":
-        transform.y -= this.speed * deltaTime;
+        this.tryMoveY(-moveBy);
         break;
       case "KeyA":
-        transform.x -= this.speed * deltaTime;
+        this.tryMoveX(-moveBy);
         break;
       case "KeyS":
-        transform.y += this.speed * deltaTime;
+        this.tryMoveY(moveBy);
         break;
       case "KeyD":
-        transform.x += this.speed * deltaTime;
+        this.tryMoveX(moveBy);
         break;
       default:
         break;
@@ -151,6 +158,13 @@ export class PlayerCollider extends Collider implements ICollider {
         ) {
           COMPONENTS.player.collider!.collidingWith.delete(e);
           delete COMPONENTS[e];
+
+          if (
+            Object.keys(COMPONENTS).filter((x) => x.startsWith("npc"))
+              .length === 0
+          ) {
+            COMPONENTS.door.spawner!.spawn();
+          }
         }
 
         if (!npcLife.living && this.enabled) {

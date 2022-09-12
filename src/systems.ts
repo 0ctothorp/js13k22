@@ -22,6 +22,10 @@ export function npcLifeSystem(deltaTime: number) {
   everyEntity((components) => components.npcLife?.update?.(deltaTime));
 }
 
+export function cameraSystem(deltaTime: number) {
+  COMPONENTS.camera.camera?.update(deltaTime);
+}
+
 export function uiSystem() {
   everyEntity((components) => components.ui?.render?.(ctx));
 }
@@ -69,8 +73,6 @@ export function collisionSystem(deltaTime: number) {
           cs2.collider.entity
         );
         if (!collisions.has(collisionId)) {
-          console.log([...collisions]);
-
           collisions.add(collisionId);
           cs1.collider!.collidingWith.add(cs2.collider!.entity);
           cs2.collider!.collidingWith.add(cs1.collider!.entity);
@@ -86,7 +88,6 @@ export function collisionSystem(deltaTime: number) {
         );
         if (collisions.has(collisionId)) {
           collisions.delete(collisionId);
-          console.log([...collisions]);
         }
         cs1.collider!.collidingWith.delete(cs2.collider!.entity);
         cs2.collider!.collidingWith.delete(cs1.collider!.entity);

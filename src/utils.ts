@@ -1,3 +1,5 @@
+import { clamp } from "./math";
+
 export function debounce(fn: () => void, time: number) {
   let t: number;
 
@@ -32,9 +34,14 @@ export function getDebugDrawFPS(ctx: CanvasRenderingContext2D) {
 }
 
 const REFERENCE_SCREEN_WIDTH = 1280;
+export const UNIT = 32;
 
 export function worldSize(size: number) {
-  const multiplier = window.innerWidth / REFERENCE_SCREEN_WIDTH;
+  const multiplier = clamp(
+    0.75,
+    window.innerWidth / REFERENCE_SCREEN_WIDTH,
+    1.75
+  );
   return size * multiplier;
 }
 
