@@ -1,11 +1,11 @@
 import { clamp } from "./math";
 
-export function debounce(fn: () => void, time: number) {
+export function debounce(fn: (...args: any[]) => void, time: number) {
   let t: number;
 
-  return () => {
+  return (...args: any[]) => {
     clearTimeout(t);
-    t = setTimeout(fn, time);
+    t = setTimeout(() => fn(...args), time);
   };
 }
 

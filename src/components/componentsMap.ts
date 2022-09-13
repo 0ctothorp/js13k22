@@ -1,5 +1,10 @@
 import { range, UNIT, worldSize } from "../utils";
-import { IComponent, Renderer, TransformComponent } from "./common";
+import {
+  IComponent,
+  MapTransform,
+  Renderer,
+  TransformComponent,
+} from "./common";
 import {
   DeathRenderComponent,
   PlayerCollider,
@@ -41,8 +46,12 @@ export function getMapSize(level: number) {
   return {
     width,
     height,
-    x: window.innerWidth / 2 - (width / 2) * worldSize(UNIT),
-    y: window.innerHeight / 2 - (height / 2) * worldSize(UNIT),
+    get x() {
+      return window.innerWidth / 2 - (width / 2) * worldSize(UNIT);
+    },
+    get y() {
+      return window.innerHeight / 2 - (height / 2) * worldSize(UNIT);
+    },
   };
 }
 
@@ -93,47 +102,37 @@ function createMap(level: number) {
   const { width, height } = getMapSize(level);
 
   const ec: typeof COMPONENTS = {};
-  const h = height + 2;
-  const topy = window.innerHeight / 2 - (h / 2) * worldSize(UNIT);
-  const bottomy = window.innerHeight / 2 + (height / 2) * worldSize(UNIT);
   const w = width + 2;
 
   range(w).forEach((i) => {
     // create top and bottom walls
     const topEntity = `maptop${i}` as const;
-    const x =
-      window.innerWidth / 2 - (w * worldSize(UNIT)) / 2 + i * worldSize(UNIT);
+
     ec[topEntity] = {
-      transform: new TransformComponent(topEntity, x, topy),
+      transform: new MapTransform(topEntity, "top", i),
       renderer: new DeathRenderComponent(topEntity, "wall"),
       collider: new Collider(topEntity, [UNIT, UNIT]),
     };
     const bottomEntity = `mapbottom${i}`;
     ec[bottomEntity] = {
-      transform: new TransformComponent(bottomEntity, x, bottomy),
+      transform: new MapTransform(bottomEntity, "bottom", i),
       renderer: new DeathRenderComponent(bottomEntity, "wall"),
       collider: new Collider(bottomEntity, [UNIT, UNIT]),
     };
   });
 
-  const leftx = window.innerWidth / 2 - (width / 2) * worldSize(UNIT);
-  const rightx = window.innerWidth / 2 + (width / 2) * worldSize(UNIT);
-
   range(height).forEach((i) => {
     // create left and right walls
     const leftEntity = `mapleft${i}` as const;
-    const y =
-      window.innerHeight / 2 -
-      (height * worldSize(UNIT)) / 2 +
-      i * worldSize(UNIT);
+
     ec[leftEntity] = {
-      transform: new TransformComponent(leftEntity, leftx - worldSize(UNIT), y),
+      transform: new MapTransform(leftEntity, "left", i),
       renderer: new DeathRenderComponent(leftEntity, "wall"),
       collider: new Collider(leftEntity, [UNIT, UNIT]),
     };
     const rightEntity = `mapright${i}`;
     ec[rightEntity] = {
-      transform: new TransformComponent(rightEntity, rightx, y),
+      transform: new MapTransform(rightEntity, "right", i),
       renderer: new DeathRenderComponent(rightEntity, "wall"),
       collider: new Collider(rightEntity, [UNIT, UNIT]),
     };

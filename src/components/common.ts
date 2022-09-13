@@ -1,6 +1,6 @@
 import { Entity } from "../entities";
 import { GAME } from "../game";
-import { UNIT, worldSize } from "../utils";
+import { debounce, UNIT, worldSize } from "../utils";
 import { COMPONENTS, getMapSize } from "./componentsMap";
 
 export interface Renderer {
@@ -37,11 +37,67 @@ export class TransformComponent extends BaseComponent {
   }
 }
 
+type MapSegment = "top" | "left" | "bottom" | "right";
+
+export class MapTransform extends BaseComponent {
+  x = 0;
+  y = 0;
+  segment: MapSegment;
+  index: number;
+
+  constructor(entity: Entity, segment: MapSegment, index: number) {
+    super(entity);
+    this.segment = segment;
+    this.index = index;
+    this.calcPosition();
+
+    window.addEventListener(
+      "resize",
+      debounce(() => this.calcPosition(), 200)
+    );
+  }
+
+  calcPosition() {
+    const mapSize = getMapSize(GAME.level);
+
+    if (this.segment === "top" || this.segment === "bottom") {
+      this.x =
+        window.innerWidth / 2 -
+        ((mapSize.width + 2) * worldSize(UNIT)) / 2 +
+        this.index * worldSize(UNIT);
+    }
+
+    if (this.segment === "top") {
+      this.y =
+        window.innerHeight / 2 - ((mapSize.height + 2) / 2) * worldSize(UNIT);
+    }
+
+    if (this.segment === "bottom") {
+      this.y = window.innerHeight / 2 + (mapSize.height / 2) * worldSize(UNIT);
+    }
+
+    if (this.segment === "left" || this.segment === "right") {
+      this.y =
+        window.innerHeight / 2 -
+        (mapSize.height * worldSize(UNIT)) / 2 +
+        this.index * worldSize(UNIT);
+    }
+
+    if (this.segment === "left") {
+      this.x =
+        window.innerWidth / 2 - (mapSize.width / 2 + 1) * worldSize(UNIT);
+    }
+
+    if (this.segment === "right") {
+      this.x = window.innerWidth / 2 + (mapSize.width / 2) * worldSize(UNIT);
+    }
+  }
+}
+
 export class Movement extends BaseComponent implements IComponent {
   transform: TransformComponent | undefined;
 
   start() {
-    console.log(this.entity);
     this.transform = this.getAllComponents().transform;
   }
 
